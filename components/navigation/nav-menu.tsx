@@ -10,17 +10,18 @@ import {
 
 export function NavMenu() {
 
+
     const menu_items = [{
         name: "Invoices",
-        href: "/invoices"
+        href: "/invoice"
     },
     {
         name: "Clients",
-        href: "/clients"
+        href: "/client"
     },
     {
-        name: "Profile",
-        href: "/profile"
+        name: "Companies",
+        href: "/company"
     }]
 
     return (
