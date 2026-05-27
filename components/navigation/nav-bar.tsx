@@ -1,3 +1,5 @@
+"use client"
+
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from '@hugeicons/core-free-icons';
 
@@ -10,17 +12,11 @@ import { UserMenu } from "@/components/navigation/user-menu";
 import Link from "next/link";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { cookies } from 'next/headers'
-import { createClient } from '@/utils/supabase/server'
 
 // Types
-// import { type User } from "@/lib/types/user";
+import { type User } from "@supabase/supabase-js";
 
-export async function NavBar() {
-
-    const cookieStore = await cookies()
-    const client = createClient(cookieStore)
-    const { data: { user } } = await client.auth.getUser()
+export function NavBar({ user }: { user: User|null }) {
 
     return (
         <header className="flex h-16 shrink-0 justify-between items-center gap-2 border-b px-4">

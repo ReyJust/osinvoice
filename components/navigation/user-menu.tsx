@@ -29,7 +29,7 @@ import { createClient } from '@/utils/supabase/client'
 import { type User } from "@supabase/supabase-js";
 
 
-export async function UserMenu({ user }: { user: User }) {
+export function UserMenu({ user }: { user: User }) {
     const supabase = createClient()
     const { isMobile } = useSidebar()
 
