@@ -12,12 +12,6 @@ import { NavBar } from "@/components/navigation/nav-bar"
 import { createClient } from "@/utils/supabase/server"
 import { cookies } from "next/headers"
 
-const cookieStore = await cookies()
-const client = createClient(cookieStore)
-const {
-  data: { user },
-} = await client.auth.getUser()
-
 const publicSansHeading = Public_Sans({
   subsets: ["latin"],
   variable: "--font-heading",
@@ -30,11 +24,17 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const client = createClient(cookieStore)
+  const {
+    data: { user },
+  } = await client.auth.getUser()
+
   return (
     <html
       lang="en"
@@ -52,9 +52,9 @@ export default function RootLayout({
           <TooltipProvider>
             <SidebarProvider>
               <SidebarInset>
-                <NavBar />
+                <NavBar user={user} />
                 <div className="h-full w-full bg-gray-50 py-4">
-                  <div className="h-full mx-auto max-w-6xl">{children}</div>
+                  <div className="mx-auto h-full max-w-6xl">{children}</div>
                 </div>
               </SidebarInset>
             </SidebarProvider>
