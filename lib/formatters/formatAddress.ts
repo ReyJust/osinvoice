@@ -1,13 +1,11 @@
 import { Client } from "../types/client"
 
-export function formatAddress(client: Client) {
-  const parts = [
-    client.address,
-    client.city,
-    client.state,
-    client.postcode,
-    client.country,
-  ].filter(Boolean)
+export function formatAddress(client: Client, includeCountry = false): string {
+  const parts = [client.address, client.city, client.state, client.postcode]
 
-  return parts.join(", ")
+  if (includeCountry) {
+    parts.push(client.country)
+  }
+
+  return parts.filter(Boolean).join(", ")
 }
