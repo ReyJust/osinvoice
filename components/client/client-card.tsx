@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { UpdateClientForm } from "@/components/client/update-client-form"
 
-import { DeleteClientForm } from "./delete-client-form"
+// import { DeleteClientForm } from "./delete-client-form"
 import { formatAddress, formatDate } from "@/lib/formatters"
 
 export function ClientCard({ client }: { client: Client }) {
@@ -28,7 +28,7 @@ export function ClientCard({ client }: { client: Client }) {
       </CardContent>
       <CardFooter className="justify-end">
         <UpdateClientForm client={client} />
-        <DeleteClientForm client={client} />
+        {/* <DeleteClientForm client={client} /> */}
       </CardFooter>
     </Card>
   )

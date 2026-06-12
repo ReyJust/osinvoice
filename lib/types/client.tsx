@@ -36,5 +36,5 @@ export type ClientInput = z.infer<typeof ClientInputSchema>
  */
 export type Client = {
   id: number
-  created_at: Date
+  created_at: string
 } & ClientInput

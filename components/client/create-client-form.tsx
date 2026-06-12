@@ -15,12 +15,13 @@ import { Button } from "../ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { ClientForm } from "./client-form"
+import { createClient } from "@/app/client/actions"
 
 export function CreateClientForm() {
   const [open, setOpen] = useState(false)
 
-  const onCreateClient = (data: ClientInput) => {
-    console.log(data)
+  const onCreateClient = async (newClient: ClientInput) => {
+    await createClient(newClient)
 
     setOpen(false)
   }
