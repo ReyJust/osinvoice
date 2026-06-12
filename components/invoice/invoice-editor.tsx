@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import {
   Table,
   TableBody,
@@ -16,9 +17,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Invoice } from "@/lib/types/invoice"
+import { Invoice, InvoiceInput, InvoiceLine } from "@/lib/types/invoice"
 import { Company } from "@/lib/types/company"
-import { Client } from "@/lib/types/client"
+import { Client, ClientInput } from "@/lib/types/client"
+import { Separator } from "@/components/ui/separator"
 
 import {
   Combobox,
@@ -36,7 +38,9 @@ import {
   ArrowUp,
   Copy01Icon,
   Delete01Icon,
+  PencilEdit02Icon,
   PlusSignIcon,
+  SaveIcon,
 } from "@hugeicons/core-free-icons"
 import React from "react"
 import {
@@ -47,124 +51,33 @@ import {
 import { Calendar } from "../ui/calendar"
 import { formatAddress } from "@/lib/formatters"
 
-type InvoiceLine = {
-  id: string
-  description: string
-  quantity: number
-  unitPrice: number
-  totalAmount: number
-}
+import { useSupabase } from "@/utils/supabase/client"
 
-type InvoiceDraft = {
-  company: Company | null
-  client: Client | null
-  date: Date
-  id: string
-  lines: InvoiceLine[]
-  notes?: string
-}
+import { CompanyInput } from "@/lib/types/company"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { ClientForm } from "@/components/client/client-form"
+import { createClient } from "@/app/client/actions"
+import { CompanyForm } from "@/components/company/company-form"
+import { createCompany } from "@/app/company/actions"
+import { createInvoice } from "@/app/invoice/actions"
 
-export default function InvoiceEditor({ invoice }: { invoice: Invoice }) {
-  const clients: { value: Client; label: string }[] = [
-    {
-      value: {
-        id: 1,
-        address: "1 Main Street",
-        city: "Sydney",
-        state: "NSW",
-        postcode: "2000",
-        country: "AU",
+export default function InvoiceEditor({
+  clients,
+  companies,
+}: {
+  clients: { value: Client; label: string }[]
+  companies: { value: Company; label: string }[]
+}) {
+  const supabase = useSupabase()
 
-        email: "info@conquest.com",
-        name: "Conquest",
-        created_at: new Date(),
-      },
-      label: "Conquest",
-    },
-    {
-      value: {
-        id: 2,
-        address: "2 Main Street",
-        city: "Sydney",
-        state: "NSW",
-        postcode: "2000",
-        country: "AU",
-        email: "info@plantingoz.com",
-        name: "PlantingOz",
-        created_at: new Date(),
-      },
-      label: "PlantingOz",
-    },
-    {
-      value: {
-        id: 3,
-        address: "1 Main Street",
-        city: "Sydney",
-        state: "NSW",
-        postcode: "2000",
-        country: "AU",
-
-        email: "info@ozbacs.com",
-        name: "OzBacs",
-        created_at: new Date(),
-      },
-      label: "OzBacs",
-    },
-    {
-      value: {
-        id: 4,
-        address: "1 Main Street",
-        city: "Sydney",
-        state: "NSW",
-        postcode: "2000",
-        country: "AU",
-
-        email: "info@mainlabour.com",
-        name: "Main Labour",
-        created_at: new Date(),
-      },
-      label: "Main Labour",
-    },
-  ]
-
-  const companies: { value: Company; label: string }[] = [
-    {
-      value: {
-        id: 1,
-        name: "Acme Pty LTD",
-        // logo: "",
-        email: "a@a.com",
-        address: "123 Main Street",
-        city: "Sydney",
-        postcode: "2000",
-        country: "Australia",
-        state: "NSW",
-        bsb: "123-456",
-        account_number: "12345678",
-        created_at: new Date(),
-      },
-      label: "Acme Pty LTD",
-    },
-    {
-      value: {
-        id: 2,
-        name: "Yo CHi Pty LTD",
-        // logo: "",
-        email: "a@a.com",
-        address: "123 Main Street",
-        city: "Sydney",
-        postcode: "2000",
-        country: "Australia",
-        state: "NSW",
-        bsb: "123-456",
-        account_number: "12345678",
-        created_at: new Date(),
-      },
-      label: "Yo CHI Pty LTD",
-    },
-  ]
-
-  const [draft, setDraft] = useState<InvoiceDraft>(() => ({
+  const [draft, setDraft] = useState<InvoiceInput>(() => ({
     id: generateInvoiceId(),
     date: new Date(),
     company: null,
@@ -203,8 +116,17 @@ export default function InvoiceEditor({ invoice }: { invoice: Invoice }) {
   }
 
   const addInvoiceLine = (invoiceId: string) => {
+    const lastLine = draft.lines[draft.lines.length - 1]
+    const baseDate = lastLine
+      ? new Date(lastLine.date + "T00:00:00") // parse as local midnight to avoid UTC offset shift
+      : new Date(draft.date)
+    baseDate.setDate(baseDate.getDate() + 1)
+    const pad = (n: number) => String(n).padStart(2, "0")
+    const nextDate = `${baseDate.getFullYear()}-${pad(baseDate.getMonth() + 1)}-${pad(baseDate.getDate())}`
+
     const newLine: InvoiceLine = {
       id: `${invoiceId}-${cryptoRandomBase36(6)}`,
+      date: nextDate,
       description: "",
       quantity: 1,
       unitPrice: 0,
@@ -306,6 +228,15 @@ export default function InvoiceEditor({ invoice }: { invoice: Invoice }) {
     })
   }
 
+  const handleLineDateChange = (lineId: string, date: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      lines: prev.lines.map((line) =>
+        line.id === lineId ? { ...line, date } : line
+      ),
+    }))
+  }
+
   const handleNotesChange = (notes: string) => {
     setDraft((prev) => ({ ...prev, notes }))
   }
@@ -314,285 +245,398 @@ export default function InvoiceEditor({ invoice }: { invoice: Invoice }) {
     setDraft((prev) => ({ ...prev, date }))
   }
 
+  const router = useRouter()
+
   const [open, setOpen] = React.useState(false)
   const [openCompanyPopover, setOpenCompanyPopover] = React.useState(false)
   const [openClientPopover, setOpenClientPopover] = React.useState(false)
 
-  return (
-    <div>
-      {/* HEADER */}
-      <div className="mb-10 flex justify-between">
-        {/* <p>{JSON.stringify(draft)}</p> */}
-        {/* COMPANY */}
-        <Popover open={openCompanyPopover} onOpenChange={setOpenCompanyPopover}>
-          <PopoverTrigger asChild>
-            <Card className="min-h-24 w-1/2 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
-              {draft.company ? (
-                <div>
-                  <p className="my-2 font-semibold">{draft.company.name}</p>
-                  <p>{formatAddress(draft.company)}</p>
-                  <p>{draft.company.country}</p>
+  const [openCompanyCreateDialog, setOpenCompanyCreateDialog] =
+    React.useState(false)
+  const [openClientCreateDialog, setOpenClientCreateDialog] =
+    React.useState(false)
 
-                  <div className="mt-4 grid grid-cols-2">
-                    <p className="font-semibold">BSB :</p>
-                    <p>{draft.company.bsb}</p>
-                    <p className="font-semibold">Account Number :</p>
-                    <p>{draft.company.account_number}</p>
+  const saveInvoice = async (draft: InvoiceInput) => {
+    await createInvoice(draft)
+    router.push("/invoice")
+  }
+
+  const saveDraft = async (draft: InvoiceInput) => {
+    await createInvoiceDraft(draft)
+  }
+
+  const onCreateCompany = async (newCompany: CompanyInput) => {
+    await createCompany(newCompany)
+    setOpenCompanyCreateDialog(false)
+  }
+
+  const onCreateClient = async (newClient: ClientInput) => {
+    await createClient(newClient)
+    setOpenClientCreateDialog(false)
+  }
+
+  return (
+    <div className="flex h-full flex-col justify-between gap-4">
+      <div>
+        {/* HEADER */}
+        <div className="mb-10 flex justify-between">
+          {/* <p>{JSON.stringify(draft)}</p> */}
+          {/* COMPANY */}
+          <Popover
+            open={openCompanyPopover}
+            onOpenChange={setOpenCompanyPopover}
+          >
+            <PopoverTrigger asChild>
+              <Card className="min-h-24 w-1/2 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
+                {draft.company ? (
+                  <div>
+                    <p className="my-2 font-semibold">{draft.company.name}</p>
+                    <p>{formatAddress(draft.company, true)}</p>
+                    <p>{draft.company.country}</p>
+
+                    <div className="mt-4 grid grid-cols-2">
+                      <p className="font-semibold">BSB :</p>
+                      <p>{draft.company.bsb}</p>
+                      <p className="font-semibold">Account Number :</p>
+                      <p>{draft.company.account_number}</p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="font-semibold">Your Company</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Click to select company
+                ) : (
+                  <div>
+                    <div className="font-semibold">Your Company</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Click to select company
+                    </div>
                   </div>
-                </div>
-              )}
-            </Card>
-          </PopoverTrigger>
-          <PopoverContent align="start">
-            <Combobox
-              items={companies}
-              itemToStringValue={(company: { value: Company; label: string }) =>
-                company.label
-              }
-              onValueChange={(
-                company: {
+                )}
+              </Card>
+            </PopoverTrigger>
+            <PopoverContent align="start">
+              <Combobox
+                items={companies}
+                itemToStringValue={(company: {
                   value: Company
                   label: string
-                } | null
-              ) => {
-                if (company) {
-                  setCurrentCompany(company.value)
-                }
-                setOpenCompanyPopover(false)
-              }}
-            >
-              <ComboboxInput placeholder="Select a company"  showClear value={draft.company?.name || ""} />
-              <ComboboxContent>
-                <ComboboxEmpty>No companies found.</ComboboxEmpty>
-                <ComboboxList>
-                  {(company: { value: Company; label: string }) => (
-                    <ComboboxItem key={company.value.id} value={company}>
-                      {company.label}
-                    </ComboboxItem>
-                  )}
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
-          </PopoverContent>
-        </Popover>
-
-        {/* INVOICE META */}
-        <div className="flex w-1/2 flex-col items-end space-y-1">
-          <div className="text-lg font-semibold">INVOICE</div>
-          <p className="text-right">#{draft.id}</p>
-          <Field className="w-[120px]">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-[120px] cursor-pointer justify-end transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
-                >
-                  {draft.date ? draft.date.toLocaleDateString("en-GB") : "Select date"}
-                </Button>
-              </PopoverTrigger>
-
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="end"
+                }) => company.label}
+                onValueChange={(
+                  company: {
+                    value: Company
+                    label: string
+                  } | null
+                ) => {
+                  if (company) {
+                    setCurrentCompany(company.value)
+                  }
+                  setOpenCompanyPopover(false)
+                }}
               >
-                <Calendar
-                  mode="single"
-                  required
-                  selected={draft.date}
-                  captionLayout="dropdown-months"
-                  onSelect={(date: Date) => {
-                    handleDateChange(date)
-                    setOpen(false)
-                  }}
+                <ComboboxInput
+                  placeholder="Select a company"
+                  showClear
+                  value={draft.company?.name || ""}
                 />
-              </PopoverContent>
-            </Popover>
-          </Field>
+                <ComboboxContent>
+                  <ComboboxEmpty>No companies found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(company: { value: Company; label: string }) => (
+                      <ComboboxItem key={company.value.id} value={company}>
+                        {company.label}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                  <Separator className="my-2" />
+                  <Dialog
+                    open={openCompanyCreateDialog}
+                    onOpenChange={setOpenCompanyCreateDialog}
+                  >
+                    <DialogTrigger asChild>
+                      <div className="m-2">
+                        <Button className="w-full">
+                          New Company
+                          <HugeiconsIcon icon={PlusSignIcon} />
+                        </Button>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent
+                      showCloseButton={false}
+                      className="sm:max-w-4xl"
+                    >
+                      <DialogHeader>
+                        <DialogTitle>Create New Company</DialogTitle>
+                        <DialogDescription>
+                          Create your new company here. Click save when
+                          you&apos;re done.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <CompanyForm submit={onCreateCompany} />
+                    </DialogContent>
+                  </Dialog>
+                </ComboboxContent>
+              </Combobox>
+            </PopoverContent>
+          </Popover>
+
+          {/* INVOICE META */}
+          <div className="flex w-1/2 flex-col items-end space-y-1">
+            <div className="text-lg font-semibold">INVOICE</div>
+            <p className="text-right">#{draft.id}</p>
+            <Field className="w-[120px]">
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-[120px] cursor-pointer justify-end transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
+                  >
+                    {draft.date
+                      ? draft.date.toLocaleDateString("en-GB")
+                      : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="end"
+                >
+                  <Calendar
+                    mode="single"
+                    required
+                    selected={draft.date}
+                    captionLayout="dropdown-months"
+                    onSelect={(date: Date) => {
+                      handleDateChange(date)
+                      setOpen(false)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </Field>
+          </div>
         </div>
-      </div>
 
-      {/* CLIENT */}
-      <div className="mb-10">
-        <Popover open={openClientPopover} onOpenChange={setOpenClientPopover}>
-          <PopoverTrigger asChild>
-            <Card className="min-h-24 w-64 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
-              {draft.client ? (
-                <div>
-                  <p className="my-2 font-semibold">{draft.client.name}</p>
-                  <p>{formatAddress(draft.client)}</p>
-                  <p>{draft.client.country}</p>
-                </div>
-              ) : (
-                <div>
-                  <div className="font-semibold">Bill To</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    Click to select client
+        {/* CLIENT */}
+        <div className="mb-10">
+          <Popover open={openClientPopover} onOpenChange={setOpenClientPopover}>
+            <PopoverTrigger asChild>
+              <Card className="min-h-24 w-64 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
+                {draft.client ? (
+                  <div>
+                    <p className="my-2 font-semibold">{draft.client.name}</p>
+                    <p>{formatAddress(draft.client)}</p>
+                    <p>{draft.client.country}</p>
                   </div>
-                </div>
-              )}
-            </Card>
-          </PopoverTrigger>
-          <PopoverContent align="start">
-            <Combobox
-              items={clients}
-              itemToStringValue={(client: { value: Client; label: string }) =>
-                client.label
-              }
-              onValueChange={(
-                client: {
-                  value: Client
-                  label: string
-                } | null
-              ) => {
-                if (client) {
-                  setCurrentClient(client.value)
-                }
-                setOpenClientPopover(false)
-              }}
-            >
-              <ComboboxInput placeholder="Select a client" value={draft.client?.name || ""} />
-              <ComboboxContent>
-                <ComboboxEmpty>No clients found.</ComboboxEmpty>
-                <ComboboxList>
-                  {(client: { value: Client; label: string }) => (
-                    <ComboboxItem key={client.value.id} value={client}>
-                      {client.label}
-                    </ComboboxItem>
-                  )}
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      {/* LINES */}
-      <div className="mb-10">
-        <Card className="p-4">
-          <div className="mb-4 font-semibold">Items</div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead></TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Unit Price</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="text-sm [&_td]:py-1 [&_th]:py-1 [&_tr]:border-0">
-              {draft.lines.map((line) => (
-                <TableRow key={line.id}>
-                  <TableCell className="p-0!">
-                    <div className="flex flex-col justify-center p-0">
-                      <Button
-                        variant="outline"
-                        className="sm m-0 h-1/2 w-auto cursor-pointer p-0"
-                        onClick={() => handleBringUpLine(line.id)}
-                      >
-                        <HugeiconsIcon icon={ArrowUp} size={2} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="sm m-0 h-1/2 w-auto cursor-pointer p-0"
-                        onClick={() => handleBringDownLine(line.id)}
-                      >
-                        <HugeiconsIcon icon={ArrowDown} size={2} />
-                      </Button>
+                ) : (
+                  <div>
+                    <div className="font-semibold">Bill To</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      Click to select client
                     </div>
-                  </TableCell>
-                  <TableCell className="w-3/4">
-                    <Input
-                      onChange={(e) =>
-                        handleLineDescriptionChange(line.id, e.target.value)
-                      }
-                      value={line.description}
-                    />
-                  </TableCell>
-                  <TableCell className="w-1/6">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      onChange={(e) =>
-                        handleLineUnitPriceChange(line.id, e.target.value)
-                      }
-                      value={line.unitPrice}
-                    />
-                  </TableCell>
-                  <TableCell className="w-1/6">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      onChange={(e) =>
-                        handleLineQuantityChange(line.id, e.target.value)
-                      }
-                      value={line.quantity}
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {line.totalAmount.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="p-0 text-right">
-                    <Button
-                      variant="default"
-                      className="m-0 cursor-pointer p-2"
-                      onClick={() => duplicateInvoiceLine(line.id)}
+                  </div>
+                )}
+              </Card>
+            </PopoverTrigger>
+            <PopoverContent align="start">
+              <Combobox
+                items={clients}
+                itemToStringValue={(client: { value: Client; label: string }) =>
+                  client.label
+                }
+                onValueChange={(
+                  client: {
+                    value: Client
+                    label: string
+                  } | null
+                ) => {
+                  if (client) {
+                    setCurrentClient(client.value)
+                  }
+                  setOpenClientPopover(false)
+                }}
+              >
+                <ComboboxInput
+                  placeholder="Select a client"
+                  value={draft.client?.name || ""}
+                />
+                <ComboboxContent>
+                  <ComboboxEmpty>No clients found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(client: { value: Client; label: string }) => (
+                      <ComboboxItem key={client.value.id} value={client}>
+                        {client.label}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                  <Separator className="my-2" />
+
+                  <Dialog
+                    open={openClientCreateDialog}
+                    onOpenChange={setOpenClientCreateDialog}
+                  >
+                    <DialogTrigger asChild>
+                      <div className="m-2">
+                        <Button className="w-full">
+                          New Client
+                          <HugeiconsIcon icon={PlusSignIcon} />
+                        </Button>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent
+                      showCloseButton={false}
+                      className="sm:max-w-4xl"
                     >
-                      <HugeiconsIcon icon={Copy01Icon} />
-                    </Button>
+                      <DialogHeader>
+                        <DialogTitle>Create New Client</DialogTitle>
+                        <DialogDescription>
+                          Create your new client here. Click save when
+                          you&apos;re done.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <ClientForm submit={onCreateClient} />
+                    </DialogContent>
+                  </Dialog>
+                </ComboboxContent>
+              </Combobox>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* LINES */}
+        <div className="mb-10">
+          <Card className="p-4">
+            <div className="mb-4 font-semibold">Items</div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead></TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Unit Price</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="text-sm [&_td]:py-1 [&_th]:py-1 [&_tr]:border-0">
+                {draft.lines.map((line) => (
+                  <TableRow key={line.id}>
+                    <TableCell className="p-0!">
+                      <div className="flex flex-col justify-center p-0">
+                        <Button
+                          variant="outline"
+                          className="sm m-0 h-1/2 w-auto cursor-pointer p-0"
+                          onClick={() => handleBringUpLine(line.id)}
+                        >
+                          <HugeiconsIcon icon={ArrowUp} size={2} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="sm m-0 h-1/2 w-auto cursor-pointer p-0"
+                          onClick={() => handleBringDownLine(line.id)}
+                        >
+                          <HugeiconsIcon icon={ArrowDown} size={2} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="date"
+                        value={line.date}
+                        onChange={(e) =>
+                          handleLineDateChange(line.id, e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="w-3/4">
+                      <Input
+                        onChange={(e) =>
+                          handleLineDescriptionChange(line.id, e.target.value)
+                        }
+                        value={line.description}
+                      />
+                    </TableCell>
+                    <TableCell className="w-1/6">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        onChange={(e) =>
+                          handleLineUnitPriceChange(line.id, e.target.value)
+                        }
+                        value={line.unitPrice}
+                      />
+                    </TableCell>
+                    <TableCell className="w-1/6">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        onChange={(e) =>
+                          handleLineQuantityChange(line.id, e.target.value)
+                        }
+                        value={line.quantity}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {line.totalAmount.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="p-0 text-right">
+                      <Button
+                        variant="default"
+                        className="m-0 cursor-pointer p-2"
+                        onClick={() => duplicateInvoiceLine(line.id)}
+                      >
+                        <HugeiconsIcon icon={Copy01Icon} />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="m-0 cursor-pointer p-2"
+                        onClick={() => removeInvoiceLine(line.id)}
+                      >
+                        <HugeiconsIcon icon={Delete01Icon} />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={7} className="border-0 p-0">
                     <Button
-                      variant="destructive"
-                      className="m-0 cursor-pointer p-2"
-                      onClick={() => removeInvoiceLine(line.id)}
+                      variant="secondary"
+                      className="my-2 w-full cursor-pointer transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
+                      onClick={() => addInvoiceLine(draft.id)}
                     >
-                      <HugeiconsIcon icon={Delete01Icon} />
+                      <HugeiconsIcon icon={PlusSignIcon} />
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
-              <TableRow>
-                <TableCell colSpan={6} className="border-0 p-0">
-                  <Button
-                    variant="secondary"
-                    className="my-2 w-full cursor-pointer transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
-                    onClick={() => addInvoiceLine(draft.id)}
-                  >
-                    <HugeiconsIcon icon={PlusSignIcon} />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-            <TableFooter>
-              <TableRow></TableRow>
-              <TableRow>
-                <TableCell colSpan={5}>Total</TableCell>
-                <TableCell className="text-right">
-                  ${invoiceTotal.toFixed(2)}
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
+              </TableBody>
+              <TableFooter>
+                <TableRow></TableRow>
+                <TableRow>
+                  <TableCell colSpan={6}>Total</TableCell>
+                  <TableCell className="text-right">
+                    ${invoiceTotal.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </Card>
+        </div>
+
+        {/* NOTES */}
+        <Card className="min-h-24 p-4">
+          <div className="font-semibold">Notes</div>
+          <Textarea
+            placeholder="Add notes here"
+            onChange={(e) => handleNotesChange(e.target.value)}
+          />
         </Card>
       </div>
-
-      {/* NOTES */}
-      <Card className="min-h-24 p-4">
-        <div className="font-semibold">Notes</div>
-        <Textarea
-          placeholder="Add notes here"
-          onChange={(e) => handleNotesChange(e.target.value)}
-        />
-      </Card>
+      <div className="text-right">
+        <Button id="save" type="submit" onClick={() => saveInvoice(draft)}>
+          Save Invoice
+          <HugeiconsIcon icon={SaveIcon} className="ml-2" />
+        </Button>
+      </div>
     </div>
   )
 }

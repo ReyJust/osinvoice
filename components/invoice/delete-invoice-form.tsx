@@ -17,19 +17,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from "react"
+import { moveInvoiceToTrash } from "@/app/invoice/actions"
 
 export function DeleteInvoiceForm({ invoice }: { invoice: Invoice }) {
   const [open, setOpen] = useState(false)
 
-  const onDeleteInvoice = () => {
-    console.log("TO DELETE")
-
+  const onDeleteInvoice = async () => {
+    await moveInvoiceToTrash(invoice.id)
     setOpen(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-    <form id="delete-invoice-form" onSubmit={onDeleteInvoice}>
+      <form id="delete-invoice-form" onSubmit={onDeleteInvoice}>
         <DialogTrigger asChild>
           <Button variant="destructive" size="icon">
             <HugeiconsIcon
@@ -55,7 +55,7 @@ export function DeleteInvoiceForm({ invoice }: { invoice: Invoice }) {
               </Button>
             </DialogClose>
 
-            <Button className="flex-1" type="submit" variant="destructive">
+            <Button className="flex-1" type="submit" variant="destructive" onClick={onDeleteInvoice}>
               Delete
             </Button>
           </DialogFooter>
