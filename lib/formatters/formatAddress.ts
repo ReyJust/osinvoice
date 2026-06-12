@@ -1,10 +1,24 @@
-import { Client } from "../types/client"
+interface AddressParts {
+  address?: string
+  city?: string
+  state?: string
+  postcode?: string
+  country?: string
+}
 
-export function formatAddress(client: Client, includeCountry = false): string {
-  const parts = [client.address, client.city, client.state, client.postcode]
+export function formatAddress(
+  addressParts: Partial<AddressParts>,
+  includeCountry = false
+): string {
+  const parts = [
+    addressParts.address,
+    addressParts.city,
+    addressParts.state,
+    addressParts.postcode,
+  ]
 
   if (includeCountry) {
-    parts.push(client.country)
+    parts.push(addressParts.country)
   }
 
   return parts.filter(Boolean).join(", ")
