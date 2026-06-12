@@ -1,17 +1,5 @@
-import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
+import { redirect } from "next/navigation"
 
-export default async function Page() {
-  const cookieStore = await cookies()
-  const supabase = createClient(cookieStore)
-
-  const { data: todos } = await supabase.from('todos').select()
-  console.log('todos', todos)
-  return (  
-    <ul>
-      {todos?.map((todo) => (
-        <li key={todo.id}>{todo.desc}</li>
-      ))}
-    </ul>
-  )
+export default function Page() {
+  redirect("/invoice")
 }

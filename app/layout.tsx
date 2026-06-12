@@ -10,14 +10,10 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import * as React from "react"
 import { NavBar } from "@/components/navigation/nav-bar"
 import { createClient } from "@/utils/supabase/server"
-import { cookies } from "next/headers"
 
-const publicSansHeading = Public_Sans({
-  subsets: ["latin"],
-  variable: "--font-heading",
-})
+const publicSansHeading = Public_Sans({subsets:['latin'],variable:'--font-heading'})
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" })
+const outfit = Outfit({subsets:['latin'],variable:'--font-sans'})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -29,8 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const client = createClient(cookieStore)
+  const client = await createClient()
   const {
     data: { user },
   } = await client.auth.getUser()
