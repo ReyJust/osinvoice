@@ -39,5 +39,5 @@ export type CompanyInput = z.infer<typeof CompanyInputSchema>
  */
 export type Company = {
   id: number
-  created_at: Date
+  created_at: string
 } & CompanyInput

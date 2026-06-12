@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { UpdateCompanyForm } from "@/components/company/update-company-form"
 
-import { DeleteCompanyForm } from "./delete-company-form"
+// import { DeleteCompanyForm } from "./delete-company-form"
 import { formatAddress, formatDate } from "@/lib/formatters"
 
 export function CompanyCard({ company }: { company: Company }) {
@@ -31,7 +31,7 @@ export function CompanyCard({ company }: { company: Company }) {
       </CardContent>
       <CardFooter className="justify-end">
         <UpdateCompanyForm company={company} />
-        <DeleteCompanyForm company={company} />
+        {/* <DeleteCompanyForm company={company} /> */}
       </CardFooter>
     </Card>
   )

@@ -16,12 +16,15 @@ import { HugeiconsIcon } from "@hugeicons/react"
 
 import { CompanyForm } from "./company-form"
 
+import { useSupabase } from "@/utils/supabase/client"
+import { createCompany } from "@/app/company/actions"
+
 export function CreateCompanyForm() {
   const [open, setOpen] = useState(false)
+  const supabase = useSupabase()
 
-  const onCreateCompany = (data: CompanyInput) => {
-    console.log(data)
-
+  const onCreateCompany = async (newCompany: CompanyInput) => {
+    await createCompany(newCompany)
     setOpen(false)
   }
 
@@ -30,12 +33,7 @@ export function CreateCompanyForm() {
       <DialogTrigger asChild>
         <Button>
           New Company
-          <HugeiconsIcon
-            icon={PlusSignIcon}
-            // size={24}
-            // color="currentColor"
-            // strokeWidth={1.5}
-          />
+          <HugeiconsIcon icon={PlusSignIcon} />
         </Button>
       </DialogTrigger>
       <DialogContent showCloseButton={false} className="sm:max-w-4xl">
