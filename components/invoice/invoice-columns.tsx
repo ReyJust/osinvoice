@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowUpDownIcon,
   Delete02Icon,
+  Download01Icon,
   Edit03Icon,
 } from "@hugeicons/core-free-icons"
 
@@ -115,6 +116,11 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
       const invoice = row.original
       return (
         <div className="flex items-center justify-end gap-1">
+          <Button variant="outline" size="icon" asChild>
+            <a href={`/api/invoice/${invoice.id}/pdf`} download>
+              <HugeiconsIcon icon={Download01Icon} />
+            </a>
+          </Button>
           <Button variant="default" size="icon" asChild>
             <Link href={`/invoice/${invoice.id}/edit`}>
               <HugeiconsIcon icon={Edit03Icon} />
