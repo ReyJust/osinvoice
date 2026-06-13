@@ -35,6 +35,7 @@ export type InvoiceLine = {
 }
 
 export type InvoiceInput = {
+  id: string
   company: Company|null
   client: Client|null
   status: "unpaid" | "paid"

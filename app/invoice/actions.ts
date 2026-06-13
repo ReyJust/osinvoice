@@ -14,10 +14,10 @@ export const createInvoice = async (newInvoice: InvoiceInput) => {
   const { error } = await supabase
     .from("invoices")
     .insert({
-      // id: newInvoice.id, # TODO: GENERATE
+      id: newInvoice.id,
       company_id: newInvoice.company?.id,
-      lines: newInvoice.lines,
-      notes: newInvoice.notes,
+      lines: newInvoice.lines ?? [],
+      notes: newInvoice.notes ?? "",
       client_id: newInvoice.client?.id,
       date: newInvoice.date.toISOString(),
       user_id: user?.id,
