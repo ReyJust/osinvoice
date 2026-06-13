@@ -33,6 +33,32 @@ export const createInvoice = async (newInvoice: InvoiceInput) => {
   revalidatePath("/invoice")
 }
 
+export const updateInvoice = async (id: string, updatedInvoice: InvoiceInput) => {
+  const supabase = await createClient()
+  const user = await requireUser()
+
+  if (!user) return
+
+  const { error } = await supabase
+    .from("invoices")
+    .update({
+      company_id: updatedInvoice.company?.id,
+      lines: updatedInvoice.lines ?? [],
+      notes: updatedInvoice.notes ?? "",
+      client_id: updatedInvoice.client?.id,
+      date: (updatedInvoice.date as any).toISOString
+        ? (updatedInvoice.date as any).toISOString()
+        : updatedInvoice.date,
+      status: updatedInvoice.status,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath("/invoice")
+}
+
 export const moveInvoiceToTrash = async (invoiceId: string) => {
   const supabase = await createClient()
   const user = await requireUser()

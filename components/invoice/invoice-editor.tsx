@@ -66,24 +66,35 @@ import { ClientForm } from "@/components/client/client-form"
 import { createClient } from "@/app/client/actions"
 import { CompanyForm } from "@/components/company/company-form"
 import { createCompany } from "@/app/company/actions"
-import { createInvoice } from "@/app/invoice/actions"
+import { createInvoice, updateInvoice } from "@/app/invoice/actions"
+import { Invoice } from "@/lib/types/invoice"
 
 export default function InvoiceEditor({
   clients,
   companies,
+  initialInvoice,
 }: {
   clients: { value: Client; label: string }[]
   companies: { value: Company; label: string }[]
+  initialInvoice?: Invoice
 }) {
   const supabase = useSupabase()
 
-  const [draft, setDraft] = useState<InvoiceInput>(() => ({
-    id: generateInvoiceId(),
-    date: new Date(),
-    company: null,
-    client: null,
-    lines: [],
-  }))
+  const [draft, setDraft] = useState<InvoiceInput>(() =>
+    initialInvoice
+      ? {
+          ...initialInvoice,
+          date: new Date(initialInvoice.date) as any,
+        }
+      : {
+          id: generateInvoiceId(),
+          date: new Date() as any,
+          company: null,
+          client: null,
+          status: "unpaid" as const,
+          lines: [],
+        }
+  )
 
   const invoiceTotal = useMemo(() => {
     return draft.lines.reduce(
@@ -257,7 +268,11 @@ export default function InvoiceEditor({
     React.useState(false)
 
   const saveInvoice = async (draft: InvoiceInput) => {
-    await createInvoice(draft)
+    if (initialInvoice) {
+      await updateInvoice(initialInvoice.id, draft)
+    } else {
+      await createInvoice(draft)
+    }
     router.push("/invoice")
   }
 

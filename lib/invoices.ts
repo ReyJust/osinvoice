@@ -66,6 +66,25 @@ export const groupInvoicesByMonth = (
     }))
 }
 
+export const getInvoice = async (id: string): Promise<Invoice> => {
+  const supabase = await createClient()
+  const user = await requireUser()
+
+  const { data, error } = await supabase
+    .from("invoices")
+    .select(`*, company:companies (*), client:clients (*)`)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (error) throw error
+
+  return {
+    ...data,
+    lines: data.lines as InvoiceLine[],
+  } as any as Invoice
+}
+
 export const getTrashedInvoices = async (): Promise<Invoice[]> => {
   const supabase = await createClient()
   const user = await requireUser()
