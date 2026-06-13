@@ -15,16 +15,13 @@ export function NavBar({ user }: { user: User | null }) {
   const router = useRouter()
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+    <header className="grid grid-cols-3 h-16 shrink-0 items-center border-b px-4">
       <div>
         {user ? (
           <UserMenu user={user} />
         ) : (
           <Tooltip>
             <TooltipTrigger>
-              {/* <Button size="sm" onClick={() => router.push('/signup')}>
-                            Sign Up / Login
-                        </Button> */}
               <Link href="/login" className="text-sm font-medium">
                 Sign Up / Login
               </Link>
@@ -38,9 +35,12 @@ export function NavBar({ user }: { user: User | null }) {
           </Tooltip>
         )}
       </div>
-      {user ? <NavMenu /> : null}
-
-      <CreateInvoiceButton />
+      <div className="flex justify-center">
+        {user ? <NavMenu /> : null}
+      </div>
+      <div className="flex justify-end">
+        <CreateInvoiceButton />
+      </div>
     </header>
   )
 }
