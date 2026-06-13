@@ -17,13 +17,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from "react"
+import { deleteClient } from "@/app/client/actions"
 
 export function DeleteClientForm({ client }: { client: Client }) {
   const [open, setOpen] = useState(false)
 
-  const onDeleteClient = () => {
-    console.log("TO DELETE")
-
+  const onDeleteClient = async () => {
+    await deleteClient(client.id)
     setOpen(false)
   }
 

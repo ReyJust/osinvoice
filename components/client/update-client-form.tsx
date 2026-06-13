@@ -16,13 +16,13 @@ import { Button } from "../ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { ClientForm } from "./client-form"
+import { updateClient } from "@/app/client/actions"
 
 export function UpdateClientForm({ client }: { client: Client }) {
   const [open, setOpen] = useState(false)
 
-  const onUpdateClient = (data: ClientInput) => {
-    console.log(data)
-
+  const onUpdateClient = async (data: ClientInput) => {
+    await updateClient(client.id, data)
     setOpen(false)
   }
 

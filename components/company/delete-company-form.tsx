@@ -17,13 +17,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from "react"
+import { deleteCompany } from "@/app/company/actions"
 
 export function DeleteCompanyForm({ company }: { company: Company }) {
   const [open, setOpen] = useState(false)
 
-  const onDeleteCompany = () => {
-    console.log("TO DELETE")
-
+  const onDeleteCompany = async () => {
+    await deleteCompany(company.id)
     setOpen(false)
   }
 

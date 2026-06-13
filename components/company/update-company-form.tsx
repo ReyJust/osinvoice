@@ -16,13 +16,13 @@ import { Button } from "../ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { CompanyForm } from "./company-form"
+import { updateCompany } from "@/app/company/actions"
 
 export function UpdateCompanyForm({ company }: { company: Company }) {
   const [open, setOpen] = useState(false)
 
-  const onUpdateCompany = (data: CompanyInput) => {
-    console.log(data)
-
+  const onUpdateCompany = async (data: CompanyInput) => {
+    await updateCompany(company.id, data)
     setOpen(false)
   }
 

@@ -36,3 +36,33 @@ export const createCompany = async (newCompany: CompanyInput) => {
 
   revalidatePath("/company")
 }
+
+export const updateCompany = async (id: number, data: CompanyInput) => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { error } = await supabase
+    .from("companies")
+    .update(data)
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/company")
+}
+
+export const deleteCompany = async (id: number) => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { error } = await supabase
+    .from("companies")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/company")
+}

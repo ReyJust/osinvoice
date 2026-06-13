@@ -1,7 +1,3 @@
-"use server"
-// import { IconFolderCode } from "@tabler/icons-react"
-// import { ArrowUpRightIcon } from "lucide-react"
-
 import {
   Empty,
   EmptyContent,
@@ -10,41 +6,28 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-
-// import { Kbd } from "@/components/ui/kbd"
-
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Search01Icon, UserDollarIcon } from "@hugeicons/core-free-icons"
-
-import { CompanyCard } from "@/components/company/company-card"
+import { UserDollarIcon } from "@hugeicons/core-free-icons"
 import { CreateCompanyForm } from "@/components/company/create-company-form"
 import { getCompanies } from "@/lib/companies"
-import { SearchSection } from "@/components/search-section"
+import { DataTable } from "@/components/ui/data-table"
+import { companyColumns } from "@/components/company/company-columns"
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ search?: string }>
-}) {
-  const { search } = await searchParams
-
-  const companies = await getCompanies(search)
+export default async function Page() {
+  const companies = await getCompanies()
 
   return (
-    <div className="">
-      <h1 className="pb-4 text-2xl font-bold">Companies</h1>
+    <div>
+      <div className="flex items-center justify-between pb-4">
+        <h1 className="text-2xl font-bold">Companies</h1>
+        <CreateCompanyForm />
+      </div>
 
-      {companies.length == 0 ? (
+      {companies.length === 0 ? (
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <HugeiconsIcon
-                icon={UserDollarIcon}
-                // className="text-muted-foreground"
-                // size={24}
-                // color="#FFFFFF"
-                // strokeWidth={1.5}
-              />
+              <HugeiconsIcon icon={UserDollarIcon} />
             </EmptyMedia>
             <EmptyTitle>No Companies Yet</EmptyTitle>
             <EmptyDescription>
@@ -57,24 +40,12 @@ export default async function Page({
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-between">
-            <SearchSection />
-
-            <CreateCompanyForm
-            // onSuccess={(newCompany: Company) => {
-            //     companies.push(newCompany)
-            //   }}
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-4">
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-              {companies.map((company) => {
-                return <CompanyCard key={company.id} company={company} />
-              })}
-            </div>
-          </div>
-        </div>
+        <DataTable
+          columns={companyColumns}
+          data={companies}
+          searchPlaceholder="Search by name, email or location…"
+          defaultSort={[{ id: "name", desc: false }]}
+        />
       )}
     </div>
   )

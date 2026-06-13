@@ -12,7 +12,6 @@ import { LegalDocument02Icon } from "@hugeicons/core-free-icons"
 import CreateInvoiceButton from "@/components/invoice/create-invoice-button"
 import { getInvoices } from "@/lib/invoices"
 import { InvoiceDataTable } from "@/components/invoice/invoice-data-table"
-import { invoiceColumns } from "@/components/invoice/invoice-columns"
 
 export default async function Page() {
   const invoices = await getInvoices()
@@ -41,7 +40,7 @@ export default async function Page() {
           </EmptyContent>
         </Empty>
       ) : (
-        <InvoiceDataTable columns={invoiceColumns} data={invoices} />
+        <InvoiceDataTable data={invoices} />
       )}
     </div>
   )

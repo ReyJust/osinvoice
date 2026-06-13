@@ -36,9 +36,32 @@ export const createClient = async (newClient: ClientInput) => {
   revalidatePath("/client")
 }
 
-export async function searchClients(search: string) {
-  console.log("QUERY: ", search)
-  await getClients(search)
+export const updateClient = async (id: number, data: ClientInput) => {
+  const supabase = await createDbClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
 
+  const { error } = await supabase
+    .from("clients")
+    .update(data)
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath("/client")
+}
+
+export const deleteClient = async (id: number) => {
+  const supabase = await createDbClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { error } = await supabase
+    .from("clients")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+
+  if (error) throw new Error(error.message)
   revalidatePath("/client")
 }
