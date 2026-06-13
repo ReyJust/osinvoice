@@ -115,18 +115,17 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
       const invoice = row.original
       return (
         <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+          <Button variant="default" size="icon" asChild>
             <Link href={`/invoice/${invoice.id}/edit`}>
-              <HugeiconsIcon icon={Edit03Icon} className="h-4 w-4" />
+              <HugeiconsIcon icon={Edit03Icon} />
             </Link>
           </Button>
           <Button
-            variant="ghost"
+            variant="destructive"
             size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive"
             onClick={() => moveInvoiceToTrash(invoice.id)}
           >
-            <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
+            <HugeiconsIcon icon={Delete02Icon} />
           </Button>
         </div>
       )
