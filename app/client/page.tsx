@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import {
   Empty,
   EmptyContent,
@@ -8,6 +9,8 @@ import {
 } from "@/components/ui/empty"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { UserDollarIcon } from "@hugeicons/core-free-icons"
+export const metadata: Metadata = { title: "Clients" }
+
 import { CreateClientForm } from "@/components/client/create-client-form"
 import { getClients } from "@/lib/clients"
 import { DataTable } from "@/components/ui/data-table"

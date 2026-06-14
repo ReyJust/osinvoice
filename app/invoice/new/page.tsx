@@ -1,4 +1,7 @@
+import type { Metadata } from "next"
 import { getClients } from "@/lib/clients"
+
+export const metadata: Metadata = { title: "New Invoice" }
 import { getCompanies } from "@/lib/companies"
 import { Company } from "@/lib/types/company"
 import { Client } from "@/lib/types/client"

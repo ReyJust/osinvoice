@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import {
   Empty,
   EmptyContent,
@@ -8,6 +9,8 @@ import {
 } from "@/components/ui/empty"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { LegalDocument02Icon } from "@hugeicons/core-free-icons"
+
+export const metadata: Metadata = { title: "Invoices" }
 
 import CreateInvoiceButton from "@/components/invoice/create-invoice-button"
 import { getInvoices } from "@/lib/invoices"

@@ -1,4 +1,7 @@
+import type { Metadata } from "next"
 import { getUserSettings } from "@/lib/user-settings"
+
+export const metadata: Metadata = { title: "Settings" }
 import { saveEmailTemplate } from "@/app/settings/actions"
 import { DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
 import { Textarea } from "@/components/ui/textarea"

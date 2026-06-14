@@ -1,4 +1,14 @@
+import type { Metadata } from "next"
 import { getClients } from "@/lib/clients"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  return { title: id }
+}
 import { getCompanies } from "@/lib/companies"
 import { getInvoice } from "@/lib/invoices"
 import { getUserSettings } from "@/lib/user-settings"

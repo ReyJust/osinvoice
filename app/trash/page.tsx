@@ -1,4 +1,7 @@
+import type { Metadata } from "next"
 import { getTrashedInvoices } from "@/lib/invoices"
+
+export const metadata: Metadata = { title: "Trash" }
 import { TrashInvoiceCard } from "@/components/invoice/trash-invoice-card"
 import {
   Empty,

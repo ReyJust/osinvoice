@@ -1,6 +1,15 @@
-import { Geist, Geist_Mono, Outfit, Public_Sans } from "next/font/google"
+import { Geist_Mono, Outfit, Public_Sans } from "next/font/google"
+import type { Metadata } from "next"
 
 import "./globals.css"
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s",
+    default: "OSInvoice",
+  },
+  description: "Simple invoice management",
+}
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
