@@ -14,6 +14,9 @@ npm run db_types     # Regenerate Supabase types from local DB → lib/types/dat
 npx supabase start   # Start Supabase in local
 npm run test         # Run tests in watch mode (Vitest)
 npm run test:run     # Run all tests once (CI / single pass)
+npm run e2e          # Run Playwright E2E tests (requires local Supabase + dev server)
+npm run e2e:ui       # Open Playwright interactive UI
+npm run e2e:debug    # Run E2E in debug/step mode
 ```
 
 ## Testing
@@ -35,6 +38,24 @@ Test files live next to the code they test (`*.test.ts` / `*.test.tsx`), except 
 | `app/invoice/actions.test.ts` | All server actions — Supabase calls, user scoping, error propagation, auth guard |
 | `app/client/actions.test.ts` | createClient, updateClient, deleteClient — fields, scoping, errors, unauth guard |
 | `app/company/actions.test.ts` | createCompany, updateCompany, deleteCompany — fields, scoping, errors, unauth guard |
+
+## E2E Testing
+
+**Framework**: Playwright + Chromium. Tests live in `e2e/`.
+
+**Auth setup**: The app uses magic link only. `e2e/global-setup.ts` uses the Supabase Admin API to generate a magic link URL directly, navigates to it headlessly, and saves the session to `e2e/storageState.json` (gitignored). All E2E tests reuse that session via `storageState` in `playwright.config.ts`.
+
+**Required env vars** (add to `.env.local`):
+- `SUPABASE_SERVICE_ROLE_KEY` — from `npx supabase status`
+- `E2E_TEST_EMAIL` — email for the test user (e.g. `e2e@test.local`)
+
+**Test files**:
+| File | Coverage |
+|------|----------|
+| `e2e/auth.spec.ts` | Login/signup pages, form submission → check-email redirect (unauthenticated) |
+| `e2e/companies.spec.ts` | Create, search, update, delete company |
+| `e2e/clients.spec.ts` | Create, search, update, delete client |
+| `e2e/invoices.spec.ts` | Create invoice, status toggle, PDF link, email dialog, trash/restore/permanent delete, search |
 
 **Mocking Supabase in server action tests**: the client object returned by `createClient()` must NOT be thenable. If it has a `.then` method, `await createClient()` will unwrap it via the Promises/A+ spec and yield the query result instead of the client. Keep the client and query chain as separate objects in `makeBuilder()`.
 
