@@ -121,6 +121,7 @@ Do not add `Co-Authored-By` trailers to commits.
 | `style` | formatting, no logic change |
 
 Scope is optional but recommended for domain changes: `feat(invoice):`, `fix(auth):`, `feat(ui):`.
+DO NOT commit automatically unless I ask you to.
 
 ## Environment variables
 
