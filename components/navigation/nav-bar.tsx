@@ -65,7 +65,7 @@ export function NavBar({ user }: { user: User | null }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-64 pt-10">
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1 px-4">
               {user &&
                 NAV_ITEMS.map((item) => (
                   <Button
