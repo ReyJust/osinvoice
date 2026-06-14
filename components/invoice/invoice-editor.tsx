@@ -67,18 +67,22 @@ import { createClient } from "@/app/client/actions"
 import { CompanyForm } from "@/components/company/company-form"
 import { createCompany } from "@/app/company/actions"
 import { createInvoice, updateInvoice } from "@/app/invoice/actions"
-import { Invoice } from "@/lib/types/invoice"
+import { InvoiceEmailDialog } from "@/components/invoice/invoice-email-dialog"
 
 export default function InvoiceEditor({
   clients,
   companies,
   initialInvoice,
+  isGuest = false,
 }: {
   clients: { value: Client; label: string }[]
   companies: { value: Company; label: string }[]
   initialInvoice?: Invoice
+  isGuest?: boolean
 }) {
   const supabase = useSupabase()
+  const [localCompanies, setLocalCompanies] = useState(companies)
+  const [localClients, setLocalClients] = useState(clients)
 
   const [draft, setDraft] = useState<InvoiceInput>(() =>
     initialInvoice
@@ -253,7 +257,7 @@ export default function InvoiceEditor({
   }
 
   const handleDateChange = (date: Date) => {
-    setDraft((prev) => ({ ...prev, date }))
+    setDraft((prev) => ({ ...prev, date: date as unknown as string }))
   }
 
   const router = useRouter()
@@ -276,17 +280,57 @@ export default function InvoiceEditor({
     router.push("/invoice")
   }
 
-  const saveDraft = async (draft: InvoiceInput) => {
-    await createInvoiceDraft(draft)
+  const downloadGuestPdf = async () => {
+    const [renderer, { InvoicePDFDocument }] = await Promise.all([
+      import("@react-pdf/renderer"),
+      import("@/components/invoice/invoice-pdf"),
+    ])
+    const invoiceForPdf = { ...draft, created_at: new Date().toISOString() } as Invoice
+    const element = React.createElement(InvoicePDFDocument, { invoice: invoiceForPdf })
+    // pdf() expects a react-pdf Document element; cast bypasses the incompatible generic
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const blob = await (renderer.pdf as any)(element).toBlob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `invoice-${draft.id}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const onCreateCompany = async (newCompany: CompanyInput) => {
-    await createCompany(newCompany)
+    if (isGuest) {
+      const tempCompany: Company = {
+        ...newCompany,
+        id: -Date.now(),
+        created_at: "",
+      }
+      setLocalCompanies((prev) => [
+        ...prev,
+        { value: tempCompany, label: tempCompany.name },
+      ])
+      setCurrentCompany(tempCompany)
+    } else {
+      await createCompany(newCompany)
+    }
     setOpenCompanyCreateDialog(false)
   }
 
   const onCreateClient = async (newClient: ClientInput) => {
-    await createClient(newClient)
+    if (isGuest) {
+      const tempClient: Client = {
+        ...newClient,
+        id: -Date.now(),
+        created_at: "",
+      }
+      setLocalClients((prev) => [
+        ...prev,
+        { value: tempClient, label: tempClient.name },
+      ])
+      setCurrentClient(tempClient)
+    } else {
+      await createClient(newClient)
+    }
     setOpenClientCreateDialog(false)
   }
 
@@ -328,7 +372,7 @@ export default function InvoiceEditor({
             </PopoverTrigger>
             <PopoverContent align="start">
               <Combobox
-                items={companies}
+                items={localCompanies}
                 itemToStringValue={(company: {
                   value: Company
                   label: string
@@ -359,6 +403,7 @@ export default function InvoiceEditor({
                       </ComboboxItem>
                     )}
                   </ComboboxList>
+
                   <Separator className="my-2" />
                   <Dialog
                     open={openCompanyCreateDialog}
@@ -404,7 +449,7 @@ export default function InvoiceEditor({
                     className="w-[120px] cursor-pointer justify-end transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
                   >
                     {draft.date
-                      ? draft.date.toLocaleDateString("en-GB")
+                      ? (draft.date as unknown as Date).toLocaleDateString("en-GB")
                       : "Select date"}
                   </Button>
                 </PopoverTrigger>
@@ -416,7 +461,7 @@ export default function InvoiceEditor({
                   <Calendar
                     mode="single"
                     required
-                    selected={draft.date}
+                    selected={draft.date as unknown as Date}
                     captionLayout="dropdown-months"
                     onSelect={(date: Date) => {
                       handleDateChange(date)
@@ -452,7 +497,7 @@ export default function InvoiceEditor({
             </PopoverTrigger>
             <PopoverContent align="start">
               <Combobox
-                items={clients}
+                items={localClients}
                 itemToStringValue={(client: { value: Client; label: string }) =>
                   client.label
                 }
@@ -646,12 +691,29 @@ export default function InvoiceEditor({
           />
         </Card>
       </div>
-      <div className="text-right">
-        <Button id="save" type="submit" onClick={() => saveInvoice(draft)}>
-          Save Invoice
-          <HugeiconsIcon icon={SaveIcon} className="ml-2" />
-        </Button>
-      </div>
+      {isGuest ? (
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            You&apos;re in guest mode — your data is not saved.{" "}
+            <a href="/signup" className="underline">
+              Sign up
+            </a>{" "}
+            to store invoices, clients, and companies.
+          </p>
+          <InvoiceEmailDialog
+            invoice={{ ...draft, created_at: new Date().toISOString() } as Invoice}
+            onDownloadPdf={downloadGuestPdf}
+            triggerLabel="Finish"
+          />
+        </div>
+      ) : (
+        <div className="text-right">
+          <Button id="save" type="submit" onClick={() => saveInvoice(draft)}>
+            Save Invoice
+            <HugeiconsIcon icon={SaveIcon} className="ml-2" />
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

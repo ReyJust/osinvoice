@@ -45,6 +45,9 @@ export function LoginForm({
               <FieldDescription className="text-center">
                 Don&apos;t have an account? <a href="/signup">Sign up</a>
               </FieldDescription>
+              <FieldDescription className="text-center">
+                <a href="/invoice/new">Try it without an account →</a>
+              </FieldDescription>
             </FieldGroup>
           </form>
           <div className="relative hidden bg-muted md:block">
