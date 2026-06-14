@@ -30,14 +30,26 @@ export default async function globalSetup() {
     },
   })
 
-  if (error || !data?.properties?.action_link) {
-    throw new Error(`Failed to generate magic link: ${error?.message ?? "no action_link returned"}`)
+  if (error || !data?.properties?.hashed_token) {
+    throw new Error(`Failed to generate magic link: ${error?.message ?? "no hashed_token returned"}`)
   }
+
+  // Ensure the test user has name/surname metadata so UserMenu doesn't crash
+  if (data.user?.id) {
+    await supabase.auth.admin.updateUserById(data.user.id, {
+      user_metadata: { name: "E2E", surname: "Test" },
+    })
+  }
+
+  // Navigate directly to the Next.js callback instead of the Supabase verify URL.
+  // The action_link does a 127.0.0.1 → localhost redirect that Chromium aborts (net::ERR_ABORTED).
+  const { hashed_token, verification_type } = data.properties
+  const callbackUrl = `http://localhost:3000/auth/callback?token_hash=${hashed_token}&type=${verification_type}`
 
   const browser = await chromium.launch()
   const page = await browser.newPage()
 
-  await page.goto(data.properties.action_link)
+  await page.goto(callbackUrl)
   await page.waitForURL("**/invoice/new", { timeout: 15_000 })
 
   await page.context().storageState({ path: "e2e/storageState.json" })

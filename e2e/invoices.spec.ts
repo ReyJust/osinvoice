@@ -7,7 +7,7 @@ const CLIENT_NAME = `INV Client ${ts}`
 // Helpers for creating fixtures via the UI
 async function createCompanyFixture(page: Page) {
   await page.goto("/company")
-  await page.getByRole("button", { name: "New Company" }).click()
+  await page.getByRole("button", { name: "New Company" }).first().click()
   await page.locator("#company-form-name").fill(COMPANY_NAME)
   await page.locator("#company-form-email").fill(`inv-co-${ts}@test.com`)
   await page.locator("#company-form-country").click()
@@ -24,7 +24,7 @@ async function createCompanyFixture(page: Page) {
 
 async function createClientFixture(page: Page) {
   await page.goto("/client")
-  await page.getByRole("button", { name: "New Client" }).click()
+  await page.getByRole("button", { name: "New Client" }).first().click()
   await page.locator("#client-form-name").fill(CLIENT_NAME)
   await page.locator("#client-form-email").fill(`inv-cl-${ts}@test.com`)
   await page.locator("#client-form-country").click()
@@ -50,7 +50,7 @@ test.describe("Invoice management", () => {
 
   test("invoice list page loads with New Invoice button", async ({ page }) => {
     await page.goto("/invoice")
-    await expect(page.getByRole("button", { name: "New Invoice" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "New Invoice" }).first()).toBeVisible()
   })
 
   // --- Create invoice ---

@@ -7,14 +7,14 @@ test.describe("Auth pages", () => {
   test("login page renders email field and login button", async ({ page }) => {
     await page.goto("/login")
     await expect(page.locator("#email")).toBeVisible()
-    await expect(page.getByRole("button", { name: "Login" })).toBeVisible()
-    await expect(page.getByRole("link", { name: "Sign up" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Login", exact: true })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Sign up", exact: true })).toBeVisible()
   })
 
   test("login form submission redirects to check-email page", async ({ page }) => {
     await page.goto("/login")
     await page.locator("#email").fill("test@example.com")
-    await page.getByRole("button", { name: "Login" }).click()
+    await page.getByRole("button", { name: "Login", exact: true }).click()
     await page.waitForURL("**/check-email", { timeout: 10_000 })
     await expect(page).toHaveURL(/check-email/)
   })
