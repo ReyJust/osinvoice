@@ -270,14 +270,20 @@ export default function InvoiceEditor({
     React.useState(false)
   const [openClientCreateDialog, setOpenClientCreateDialog] =
     React.useState(false)
+  const [saving, setSaving] = React.useState(false)
 
   const saveInvoice = async (draft: InvoiceInput) => {
-    if (initialInvoice) {
-      await updateInvoice(initialInvoice.id, draft)
-    } else {
-      await createInvoice(draft)
+    setSaving(true)
+    try {
+      if (initialInvoice) {
+        await updateInvoice(initialInvoice.id, draft)
+      } else {
+        await createInvoice(draft)
+      }
+      router.push("/invoice")
+    } finally {
+      setSaving(false)
     }
-    router.push("/invoice")
   }
 
   const downloadGuestPdf = async () => {
@@ -712,9 +718,16 @@ export default function InvoiceEditor({
         </div>
       ) : (
         <div className="text-right">
-          <Button id="save" type="submit" onClick={() => saveInvoice(draft)}>
+          <Button id="save" type="submit" disabled={saving} onClick={() => saveInvoice(draft)}>
+            {saving ? (
+              <svg className="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <HugeiconsIcon icon={SaveIcon} className="ml-2" />
+            )}
             Save Invoice
-            <HugeiconsIcon icon={SaveIcon} className="ml-2" />
           </Button>
         </div>
       )}
