@@ -46,7 +46,7 @@ export default async function RootLayout({
               <SidebarInset>
                 <NavBar user={user} />
                 <div className="h-full w-full bg-gray-50 py-4">
-                  <div className="mx-auto h-full max-w-6xl">{children}</div>
+                  <div className="mx-auto h-full max-w-6xl px-4 md:px-6">{children}</div>
                 </div>
               </SidebarInset>
             </SidebarProvider>

@@ -27,8 +27,8 @@ export default async function InvoiceNewPage() {
       }))
 
   return (
-    <div className="flex min-h-screen justify-center bg-muted p-8">
-      <div className="min-h-[297mm] w-[210mm] bg-white p-10 text-sm shadow-xl">
+    <div className="flex min-h-screen justify-center bg-muted p-2 md:p-8">
+      <div className="min-h-[297mm] w-full md:w-[210mm] bg-white p-4 md:p-10 text-sm shadow-xl">
         <InvoiceEditor clients={clients} companies={companies} isGuest={isGuest} />
       </div>
     </div>

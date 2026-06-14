@@ -338,7 +338,7 @@ export default function InvoiceEditor({
     <div className="flex h-full flex-col justify-between gap-4">
       <div>
         {/* HEADER */}
-        <div className="mb-10 flex justify-between">
+        <div className="mb-10 flex flex-col gap-4 md:flex-row md:justify-between md:gap-0">
           {/* <p>{JSON.stringify(draft)}</p> */}
           {/* COMPANY */}
           <Popover
@@ -346,7 +346,7 @@ export default function InvoiceEditor({
             onOpenChange={setOpenCompanyPopover}
           >
             <PopoverTrigger asChild>
-              <Card className="min-h-24 w-1/2 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
+              <Card className="min-h-24 w-full cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25] md:w-1/2">
                 {draft.company ? (
                   <div>
                     <p className="my-2 font-semibold">{draft.company.name}</p>
@@ -437,7 +437,7 @@ export default function InvoiceEditor({
           </Popover>
 
           {/* INVOICE META */}
-          <div className="flex w-1/2 flex-col items-end space-y-1">
+          <div className="flex w-full flex-col items-start space-y-1 md:w-1/2 md:items-end">
             <div className="text-lg font-semibold">INVOICE</div>
             <p className="text-right">#{draft.id}</p>
             <Field className="w-[120px]">
@@ -478,7 +478,7 @@ export default function InvoiceEditor({
         <div className="mb-10">
           <Popover open={openClientPopover} onOpenChange={setOpenClientPopover}>
             <PopoverTrigger asChild>
-              <Card className="min-h-24 w-64 cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25]">
+              <Card className="min-h-24 w-full cursor-pointer border border-dashed border-transparent bg-transparent p-4 transition hover:border-[#005f5a] hover:bg-[#005f5a25] md:w-64">
                 {draft.client ? (
                   <div>
                     <p className="my-2 font-semibold">{draft.client.name}</p>

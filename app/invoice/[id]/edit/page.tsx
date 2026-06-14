@@ -35,8 +35,8 @@ export default async function InvoiceEditPage({
   )
 
   return (
-    <div className="flex min-h-screen justify-center bg-muted p-8">
-      <div className="flex w-[210mm] flex-col">
+    <div className="flex min-h-screen justify-center bg-muted p-2 md:p-8">
+      <div className="flex w-full md:w-[210mm] flex-col">
         <div className="mb-4 flex justify-end gap-2">
           <Button variant="outline" size="sm" asChild>
             <a href={`/api/invoice/${invoice.id}/pdf`} download>
@@ -49,7 +49,7 @@ export default async function InvoiceEditPage({
             emailBodyTemplate={settings?.email_body_template ?? undefined}
           />
         </div>
-        <div className="min-h-[297mm] bg-white p-10 text-sm shadow-xl">
+        <div className="min-h-[297mm] bg-white p-4 md:p-10 text-sm shadow-xl">
           <InvoiceEditor
             clients={clientOptions}
             companies={companyOptions}
