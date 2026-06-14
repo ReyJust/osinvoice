@@ -39,7 +39,7 @@ async function createClientFixture(page: Page) {
 
 test.describe("Invoice management", () => {
   test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext()
+    const context = await browser.newContext({ storageState: "e2e/storageState.json" })
     const page = await context.newPage()
     await createCompanyFixture(page)
     await createClientFixture(page)
@@ -58,20 +58,20 @@ test.describe("Invoice management", () => {
   test("create invoice — fills form and invoice appears in list", async ({ page }) => {
     await page.goto("/invoice/new")
 
-    // Select company via combobox
+    // Select company — click the card to open the popover, then use the combobox inside
+    await page.getByText("Click to select company").click()
     const companyCombobox = page.getByRole("combobox").first()
-    await companyCombobox.click()
     await companyCombobox.fill(COMPANY_NAME)
     await page.getByRole("option", { name: COMPANY_NAME }).first().click()
 
-    // Select client via combobox
-    const clientCombobox = page.getByRole("combobox").nth(1)
-    await clientCombobox.click()
+    // Select client — same pattern
+    await page.getByText("Click to select client").click()
+    const clientCombobox = page.getByRole("combobox").first()
     await clientCombobox.fill(CLIENT_NAME)
     await page.getByRole("option", { name: CLIENT_NAME }).first().click()
 
     // Add a line item
-    await page.getByRole("button", { name: /add/i }).click()
+    await page.getByRole("button", { name: /add line item/i }).click()
     const descInput = page.getByPlaceholder(/description/i).first()
     await descInput.fill("E2E Test Service")
     const qtyInput = page.getByPlaceholder(/qty/i).first()
@@ -155,7 +155,7 @@ test.describe("Invoice management", () => {
 
     // Dialog contains client name
     const dialog = page.getByRole("dialog")
-    await expect(dialog.getByText(CLIENT_NAME, { exact: false })).toBeVisible()
+    await expect(dialog.getByText(CLIENT_NAME, { exact: false }).last()).toBeVisible()
 
     // Three action buttons/links
     await expect(dialog.getByRole("button", { name: /copy body/i })).toBeVisible()
@@ -223,12 +223,12 @@ test.describe("Invoice management", () => {
   test("invoice list search filters by client or company name", async ({ page }) => {
     // Re-create an invoice to search for
     await page.goto("/invoice/new")
+    await page.getByText("Click to select company").click()
     const companyCombobox = page.getByRole("combobox").first()
-    await companyCombobox.click()
     await companyCombobox.fill(COMPANY_NAME)
     await page.getByRole("option", { name: COMPANY_NAME }).first().click()
-    const clientCombobox = page.getByRole("combobox").nth(1)
-    await clientCombobox.click()
+    await page.getByText("Click to select client").click()
+    const clientCombobox = page.getByRole("combobox").first()
     await clientCombobox.fill(CLIENT_NAME)
     await page.getByRole("option", { name: CLIENT_NAME }).first().click()
     await page.getByRole("button", { name: "Save Invoice" }).click()

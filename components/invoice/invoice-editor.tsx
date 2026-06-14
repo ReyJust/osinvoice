@@ -610,6 +610,7 @@ export default function InvoiceEditor({
                     </TableCell>
                     <TableCell className="w-3/4">
                       <Input
+                        placeholder="Description"
                         onChange={(e) =>
                           handleLineDescriptionChange(line.id, e.target.value)
                         }
@@ -620,6 +621,7 @@ export default function InvoiceEditor({
                       <Input
                         type="number"
                         step="0.01"
+                        placeholder="Price"
                         onChange={(e) =>
                           handleLineUnitPriceChange(line.id, e.target.value)
                         }
@@ -630,6 +632,7 @@ export default function InvoiceEditor({
                       <Input
                         type="number"
                         step="0.01"
+                        placeholder="Qty"
                         onChange={(e) =>
                           handleLineQuantityChange(line.id, e.target.value)
                         }
@@ -661,6 +664,7 @@ export default function InvoiceEditor({
                   <TableCell colSpan={7} className="border-0 p-0">
                     <Button
                       variant="secondary"
+                      aria-label="Add line item"
                       className="my-2 w-full cursor-pointer transition hover:border hover:border-dashed hover:border-[#005f5a] hover:bg-[#005f5a25]"
                       onClick={() => addInvoiceLine(draft.id)}
                     >
