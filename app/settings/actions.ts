@@ -4,7 +4,29 @@ import { createClient } from "@/utils/supabase/server"
 import { requireUser } from "@/utils/supabase/require-user"
 import { revalidatePath } from "next/cache"
 
-export async function saveEmailTemplate(formData: FormData) {
+export async function updateProfile(
+  _prevState: string | null,
+  formData: FormData
+): Promise<string | null> {
+  const name = formData.get("name") as string
+  const surname = formData.get("surname") as string
+  const supabase = await createClient()
+  await requireUser()
+
+  const { error } = await supabase.auth.updateUser({
+    data: { name, surname },
+  })
+
+  if (error) return error.message
+
+  revalidatePath("/settings")
+  return null
+}
+
+export async function saveEmailTemplate(
+  _prevState: string | null,
+  formData: FormData
+): Promise<string | null> {
   const template = formData.get("template") as string
   const supabase = await createClient()
   const user = await requireUser()
@@ -18,7 +40,8 @@ export async function saveEmailTemplate(formData: FormData) {
     { onConflict: "user_id" }
   )
 
-  if (error) throw new Error(error.message)
+  if (error) return error.message
 
   revalidatePath("/settings")
+  return null
 }

@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
+import { createClient } from "@/utils/supabase/server"
 import { getUserSettings } from "@/lib/user-settings"
+import { DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
+import { ProfileForm } from "@/components/settings/profile-form"
+import { EmailTemplateForm } from "@/components/settings/email-template-form"
 
 export const metadata: Metadata = { title: "Settings" }
-import { saveEmailTemplate } from "@/app/settings/actions"
-import { DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
 
 const MERGE_TAGS = [
   { tag: "{clientName}", description: "Client's name" },
@@ -17,6 +17,9 @@ const MERGE_TAGS = [
 ]
 
 export default async function SettingsPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   let settings = null
   try {
     settings = await getUserSettings()
@@ -25,9 +28,22 @@ export default async function SettingsPage() {
   }
 
   const currentTemplate = settings?.email_body_template ?? DEFAULT_EMAIL_TEMPLATE
+  const name = user?.user_metadata?.name ?? ""
+  const surname = user?.user_metadata?.surname ?? ""
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 max-w-2xl">
+      <div>
+        <h1 className="text-lg font-semibold">Profile</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Your name as it appears on invoices and emails.
+        </p>
+      </div>
+
+      <ProfileForm name={name} surname={surname} />
+
+      <hr className="border-border" />
+
       <div>
         <h1 className="text-lg font-semibold">Email Template</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -49,17 +65,7 @@ export default async function SettingsPage() {
         ))}
       </div>
 
-      <form action={saveEmailTemplate} className="flex flex-col gap-4">
-        <Textarea
-          name="template"
-          defaultValue={currentTemplate}
-          className="min-h-64 font-mono text-xs"
-          spellCheck={false}
-        />
-        <div className="flex justify-end">
-          <Button type="submit">Save Template</Button>
-        </div>
-      </form>
+      <EmailTemplateForm currentTemplate={currentTemplate} />
     </div>
   )
 }
