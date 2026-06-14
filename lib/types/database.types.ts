@@ -178,6 +178,30 @@ export type Database = {
           },
         ]
       }
+      user_settings: {
+        Row: {
+          id: number
+          user_id: string
+          email_body_template: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          email_body_template?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          email_body_template?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       invoice_search: {

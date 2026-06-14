@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Logout01Icon, Trash } from "@hugeicons/core-free-icons"
+import { Logout01Icon, Settings01Icon, Trash } from "@hugeicons/core-free-icons"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -21,8 +21,8 @@ export function UserMenu({ user }: { user: User }) {
   const router = useRouter()
   const supabase = useSupabase()
 
-  const initials = (name: string, surname: string) =>
-    (name[0] + surname[0]).toUpperCase()
+  const initials = (name?: string, surname?: string) =>
+    ((name?.[0] ?? "") + (surname?.[0] ?? "")).toUpperCase() || "?"
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
@@ -43,12 +43,12 @@ export function UserMenu({ user }: { user: User }) {
           <Avatar className="h-7 w-7 rounded-lg">
             <AvatarFallback className="rounded-lg text-xs">
               {initials(
-                user.user_metadata.name,
-                user.user_metadata.surname
+                user.user_metadata?.name,
+                user.user_metadata?.surname
               )}
             </AvatarFallback>
           </Avatar>
-          <span className="truncate text-sm">{user.user_metadata.name}</span>
+          <span className="truncate text-sm">{user.user_metadata?.name ?? user.email}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -61,6 +61,10 @@ export function UserMenu({ user }: { user: User }) {
           <DropdownMenuLabel className="lowercase font-normal text-muted-foreground">
             {user.email}
           </DropdownMenuLabel>
+          <DropdownMenuItem className="gap-2 p-2 cursor-pointer" onClick={() => router.push("/settings")}>
+            <HugeiconsIcon icon={Settings01Icon} />
+            Settings
+          </DropdownMenuItem>
 <DropdownMenuItem className="gap-2 p-2 cursor-pointer" onClick={() => router.push("/trash")}>
             <HugeiconsIcon icon={Trash} />
             Trash
