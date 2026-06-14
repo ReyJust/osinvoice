@@ -15,10 +15,10 @@ export const createInvoice = async (newInvoice: InvoiceInput) => {
     .from("invoices")
     .insert({
       id: newInvoice.id,
-      company_id: newInvoice.company?.id,
+      company_id: (newInvoice.company?.id ?? null) as number,
       lines: newInvoice.lines ?? [],
       notes: newInvoice.notes ?? "",
-      client_id: newInvoice.client?.id,
+      client_id: (newInvoice.client?.id ?? null) as number,
       date: (newInvoice.date as any).toISOString
         ? (newInvoice.date as any).toISOString()
         : newInvoice.date,
@@ -44,10 +44,10 @@ export const updateInvoice = async (id: string, updatedInvoice: InvoiceInput) =>
   const { error } = await supabase
     .from("invoices")
     .update({
-      company_id: updatedInvoice.company?.id,
+      company_id: (updatedInvoice.company?.id ?? null) as number,
       lines: updatedInvoice.lines ?? [],
       notes: updatedInvoice.notes ?? "",
-      client_id: updatedInvoice.client?.id,
+      client_id: (updatedInvoice.client?.id ?? null) as number,
       date: (updatedInvoice.date as any).toISOString
         ? (updatedInvoice.date as any).toISOString()
         : updatedInvoice.date,
