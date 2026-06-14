@@ -10,21 +10,23 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { signInOrUpWithEmail } from "@/app/login/actions"
+import { Logo } from "@/components/logo"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form action={signInOrUpWithEmail} className="p-6 md:p-8">
+    <div className={cn("flex flex-col items-center gap-6", className)} {...props}>
+      <Logo className="h-12 w-auto" />
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <form action={signInOrUpWithEmail}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-balance text-muted-foreground">
-                  Login to your Acme Inc account
+                  Login to your OSInvoice account
                 </p>
               </div>
               <Field>
@@ -37,11 +39,9 @@ export function LoginForm({
                   required
                 />
               </Field>
-
               <Field>
                 <Button type="submit">Login</Button>
               </Field>
-
               <FieldDescription className="text-center">
                 Don&apos;t have an account? <a href="/signup">Sign up</a>
               </FieldDescription>
@@ -50,19 +50,8 @@ export function LoginForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
         </CardContent>
       </Card>
-      {/* <FieldDescription className="px-6 text-center">
-          By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-          and <a href="#">Privacy Policy</a>.
-        </FieldDescription> */}
     </div>
   )
 }
