@@ -12,7 +12,29 @@ npm run format       # Prettier (formats all .ts/.tsx files)
 npm run typecheck    # TypeScript type check (no emit)
 npm run db_types     # Regenerate Supabase types from local DB → lib/types/database.types.ts
 npx supabase start   # Start Supabase in local
+npm run test         # Run tests in watch mode (Vitest)
+npm run test:run     # Run all tests once (CI / single pass)
 ```
+
+## Testing
+
+**Framework**: Vitest 4 + @testing-library/react + jsdom.
+
+Test files live next to the code they test (`*.test.ts` / `*.test.tsx`), except for test infrastructure which is in `tests/`:
+- `tests/setup.ts` — imports `@testing-library/jest-dom` matchers globally
+- `vitest.config.ts` — configures jsdom environment, React plugin, and `@` path alias
+
+**Coverage areas**:
+| File(s) | What's tested |
+|---------|---------------|
+| `lib/formatters/formatDate.test.ts` | Date formatting edge cases |
+| `lib/formatters/formatAddress.test.ts` | Address joining and country flag |
+| `lib/invoices.test.ts` | `groupInvoicesByMonth` grouping and sort order |
+| `components/ui/data-table.test.tsx` | Rendering, search filtering, result count |
+| `components/invoice/invoice-email-dialog.test.tsx` | Dialog open/close, email body content, mailto href, clipboard, PDF link |
+| `app/invoice/actions.test.ts` | All server actions — Supabase calls, user scoping, error propagation, auth guard |
+
+**Mocking Supabase in server action tests**: the client object returned by `createClient()` must NOT be thenable. If it has a `.then` method, `await createClient()` will unwrap it via the Promises/A+ spec and yield the query result instead of the client. Keep the client and query chain as separate objects in `makeBuilder()`.
 
 ## Architecture
 
