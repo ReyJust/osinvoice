@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { getTrashedInvoices } from "@/lib/invoices"
 
 export const metadata: Metadata = { title: "Trash" }
-import { TrashInvoiceCard } from "@/components/invoice/trash-invoice-card"
+import { TrashInvoiceDataTable } from "@/components/invoice/trash-invoice-data-table"
 import {
   Empty,
   EmptyContent,
@@ -48,11 +48,7 @@ export default async function TrashPage() {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="grid gap-4 md:grid-cols-3">
-          {invoices.map((invoice) => (
-            <TrashInvoiceCard key={invoice.id} invoice={invoice} />
-          ))}
-        </div>
+        <TrashInvoiceDataTable data={invoices} />
       )}
     </div>
   )
