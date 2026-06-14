@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono, Outfit, Public_Sans } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -33,7 +32,6 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      suppressHydrationWarning
       className={cn(
         "antialiased",
         fontMono.variable,
@@ -43,8 +41,7 @@ export default async function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>
-          <TooltipProvider>
+        <TooltipProvider>
             <SidebarProvider>
               <SidebarInset>
                 <NavBar user={user} />
@@ -54,7 +51,6 @@ export default async function RootLayout({
               </SidebarInset>
             </SidebarProvider>
           </TooltipProvider>
-        </ThemeProvider>
       </body>
     </html>
   )
