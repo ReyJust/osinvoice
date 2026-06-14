@@ -78,8 +78,8 @@ describe("InvoiceEmailDialog", () => {
   it("email body contains the invoice ID", async () => {
     render(<InvoiceEmailDialog invoice={baseInvoice} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
-    const pre = document.querySelector("pre")
-    expect(pre?.textContent).toContain("INV-20260613-ABC123")
+    const textarea = document.querySelector("textarea")
+    expect(textarea?.value).toContain("INV-20260613-ABC123")
   })
 
   it("email body contains the correct total", async () => {
@@ -161,5 +161,26 @@ describe("InvoiceEmailDialog", () => {
     render(<InvoiceEmailDialog invoice={noPayment} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
     expect(screen.queryByText(/payment details/i)).not.toBeInTheDocument()
+  })
+
+  it("uses provided emailBodyTemplate instead of default", async () => {
+    const custom = "Hi {clientName}, your invoice is {invoiceId}."
+    render(<InvoiceEmailDialog invoice={baseInvoice} emailBodyTemplate={custom} />)
+    await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
+    const textarea = document.querySelector("textarea")
+    expect(textarea?.value).toContain("Hi John Smith, your invoice is INV-20260613-ABC123.")
+  })
+
+  it("renders Download PDF button (not link) when onDownloadPdf is provided", async () => {
+    const handleDownload = vi.fn()
+    render(
+      <InvoiceEmailDialog invoice={baseInvoice} onDownloadPdf={handleDownload} />
+    )
+    await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
+    const pdfButton = screen.getByRole("button", { name: /download pdf/i })
+    expect(pdfButton).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /download pdf/i })).not.toBeInTheDocument()
+    await userEvent.click(pdfButton)
+    expect(handleDownload).toHaveBeenCalledOnce()
   })
 })
