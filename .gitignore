@@ -33,7 +33,7 @@ pnpm-debug.log*
 
 # env files
 .env*.local
-.env*.prod
+.env*.production
 
 # supabase
 supabase/.temp/
