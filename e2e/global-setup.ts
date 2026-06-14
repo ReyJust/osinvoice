@@ -23,6 +23,11 @@ export default async function globalSetup() {
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email: testEmail,
+    options: {
+      // Must go through /auth/callback so the code is exchanged for a session
+      // before the app tries to render any auth-protected page.
+      redirectTo: "http://localhost:3000/auth/callback",
+    },
   })
 
   if (error || !data?.properties?.action_link) {
