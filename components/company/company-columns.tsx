@@ -6,7 +6,7 @@ import { ArrowUpDownIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Company } from "@/lib/types/company"
 import { UpdateCompanyForm } from "./update-company-form"
-import { DeleteCompanyForm } from "./delete-company-form"
+// import { DeleteCompanyForm } from "./delete-company-form"
 
 function SortableHeader({ label, column }: { label: string; column: any }) {
   return (
@@ -50,7 +50,7 @@ export const companyColumns: ColumnDef<Company>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1">
         <UpdateCompanyForm company={row.original} />
-        <DeleteCompanyForm company={row.original} />
+        {/* <DeleteCompanyForm company={row.original} /> */}
       </div>
     ),
   },

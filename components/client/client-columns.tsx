@@ -6,7 +6,7 @@ import { ArrowUpDownIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Client } from "@/lib/types/client"
 import { UpdateClientForm } from "./update-client-form"
-import { DeleteClientForm } from "./delete-client-form"
+// import { DeleteClientForm } from "./delete-client-form"
 
 function SortableHeader({ label, column }: { label: string; column: any }) {
   return (
@@ -50,7 +50,7 @@ export const clientColumns: ColumnDef<Client>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1">
         <UpdateClientForm client={row.original} />
-        <DeleteClientForm client={row.original} />
+        {/* <DeleteClientForm client={row.original} /> */}
       </div>
     ),
   },
