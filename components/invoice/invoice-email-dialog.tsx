@@ -9,6 +9,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -19,57 +20,54 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Invoice } from "@/lib/types/invoice"
-import { formatDate } from "@/lib/formatters/formatDate"
+import { applyMergeTags, DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
 
-export function InvoiceEmailDialog({ invoice }: { invoice: Invoice }) {
+export function InvoiceEmailDialog({
+  invoice,
+  emailBodyTemplate,
+  onDownloadPdf,
+  triggerLabel = "Email Invoice",
+}: {
+  invoice: Invoice
+  emailBodyTemplate?: string
+  onDownloadPdf?: () => void
+  triggerLabel?: string
+}) {
+  const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const total = invoice.lines.reduce((sum, l) => sum + l.totalAmount, 0)
   const companyName = invoice.company?.name ?? "Us"
   const clientName = invoice.client?.name ?? "there"
   const clientEmail = invoice.client?.email ?? ""
 
   const emailSubject = `Invoice ${invoice.id} from ${companyName}`
 
-  const emailBody = useMemo(() => {
-    const lines = [
-      `Dear ${clientName},`,
-      "",
-      `Please find attached Invoice ${invoice.id} dated ${formatDate(invoice.date)} for a total of $${total.toFixed(2)}.`,
-    ]
+  const resolvedBody = useMemo(
+    () => applyMergeTags(emailBodyTemplate ?? DEFAULT_EMAIL_TEMPLATE, invoice),
+    [invoice, emailBodyTemplate]
+  )
 
-    if (invoice.company?.bsb || invoice.company?.account_number) {
-      lines.push("", "Payment details:")
-      if (invoice.company.bsb) lines.push(`BSB: ${invoice.company.bsb}`)
-      if (invoice.company.account_number)
-        lines.push(`Account: ${invoice.company.account_number}`)
-    }
+  const [editedBody, setEditedBody] = useState(resolvedBody)
 
-    lines.push(
-      "",
-      "Please don't hesitate to reach out if you have any questions.",
-      "",
-      "Kind regards,",
-      companyName
-    )
+  function handleOpenChange(next: boolean) {
+    if (next) setEditedBody(resolvedBody)
+    setOpen(next)
+  }
 
-    return lines.join("\n")
-  }, [invoice, total, clientName, companyName])
-
-  const mailtoHref = `mailto:${clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
+  const mailtoHref = `mailto:${clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(editedBody)}`
 
   function handleCopy() {
-    navigator.clipboard.writeText(emailBody)
+    navigator.clipboard.writeText(editedBody)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <HugeiconsIcon icon={Mail01Icon} />
-          Email Invoice
+          {triggerLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
@@ -83,11 +81,14 @@ export function InvoiceEmailDialog({ invoice }: { invoice: Invoice }) {
 
         <div className="space-y-3">
           <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-            Email preview
+            Email body
           </div>
-          <pre className="bg-muted rounded-md p-4 text-xs leading-relaxed whitespace-pre-wrap font-sans max-h-60 overflow-y-auto">
-            {emailBody}
-          </pre>
+          <Textarea
+            value={editedBody}
+            onChange={(e) => setEditedBody(e.target.value)}
+            className="min-h-48 font-mono text-xs leading-relaxed"
+            spellCheck={false}
+          />
           <p className="text-muted-foreground text-xs">
             Note: email clients don&apos;t support automatic attachments via
             mail links. Download the PDF separately to attach it.
@@ -105,12 +106,19 @@ export function InvoiceEmailDialog({ invoice }: { invoice: Invoice }) {
               Open Mail App
             </a>
           </Button>
-          <Button variant="default" size="sm" asChild>
-            <a href={`/api/invoice/${invoice.id}/pdf`} download>
+          {onDownloadPdf ? (
+            <Button variant="default" size="sm" onClick={onDownloadPdf}>
               <HugeiconsIcon icon={Download01Icon} />
               Download PDF
-            </a>
-          </Button>
+            </Button>
+          ) : (
+            <Button variant="default" size="sm" asChild>
+              <a href={`/api/invoice/${invoice.id}/pdf`} download>
+                <HugeiconsIcon icon={Download01Icon} />
+                Download PDF
+              </a>
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

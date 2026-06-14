@@ -1,6 +1,7 @@
 import { getClients } from "@/lib/clients"
 import { getCompanies } from "@/lib/companies"
 import { getInvoice } from "@/lib/invoices"
+import { getUserSettings } from "@/lib/user-settings"
 import { Company } from "@/lib/types/company"
 import { Client } from "@/lib/types/client"
 import InvoiceEditor from "@/components/invoice/invoice-editor"
@@ -17,10 +18,11 @@ export default async function InvoiceEditPage({
 }) {
   const { id } = await params
 
-  const [invoice, clients, companies] = await Promise.all([
+  const [invoice, clients, companies, settings] = await Promise.all([
     getInvoice(id).catch(() => null),
     getClients(),
     getCompanies(),
+    getUserSettings().catch(() => null),
   ])
 
   if (!invoice) notFound()
@@ -42,7 +44,10 @@ export default async function InvoiceEditPage({
               Export PDF
             </a>
           </Button>
-          <InvoiceEmailDialog invoice={invoice} />
+          <InvoiceEmailDialog
+            invoice={invoice}
+            emailBodyTemplate={settings?.email_body_template ?? undefined}
+          />
         </div>
         <div className="min-h-[297mm] bg-white p-10 text-sm shadow-xl">
           <InvoiceEditor
