@@ -33,8 +33,14 @@ Test files live next to the code they test (`*.test.ts` / `*.test.tsx`), except 
 | `components/ui/data-table.test.tsx` | Rendering, search filtering, result count |
 | `components/invoice/invoice-email-dialog.test.tsx` | Dialog open/close, email body content, mailto href, clipboard, PDF link |
 | `app/invoice/actions.test.ts` | All server actions — Supabase calls, user scoping, error propagation, auth guard |
+| `app/client/actions.test.ts` | createClient, updateClient, deleteClient — fields, scoping, errors, unauth guard |
+| `app/company/actions.test.ts` | createCompany, updateCompany, deleteCompany — fields, scoping, errors, unauth guard |
 
 **Mocking Supabase in server action tests**: the client object returned by `createClient()` must NOT be thenable. If it has a `.then` method, `await createClient()` will unwrap it via the Promises/A+ spec and yield the query result instead of the client. Keep the client and query chain as separate objects in `makeBuilder()`.
+
+**Auth mock shape differs by action file**:
+- `app/invoice/actions.ts` uses `requireUser()` → mock `@/utils/supabase/require-user`
+- `app/client/actions.ts` and `app/company/actions.ts` use `supabase.auth.getUser()` directly → add `auth: { getUser: vi.fn().mockResolvedValue(...) }` to the client mock instead
 
 ## Architecture
 
@@ -81,6 +87,8 @@ Generated client-side in `InvoiceEditor` with format `INV-{YYYYMMDD}-{6 random b
 ## Commit conventions
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <message>`
+
+Do not add `Co-Authored-By` trailers to commits.
 
 | Type | When |
 |------|------|
