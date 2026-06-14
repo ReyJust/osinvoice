@@ -19,7 +19,9 @@ export const createInvoice = async (newInvoice: InvoiceInput) => {
       lines: newInvoice.lines ?? [],
       notes: newInvoice.notes ?? "",
       client_id: newInvoice.client?.id,
-      date: newInvoice.date.toISOString(),
+      date: (newInvoice.date as any).toISOString
+        ? (newInvoice.date as any).toISOString()
+        : newInvoice.date,
       user_id: user?.id,
       status: "unpaid",
     })
