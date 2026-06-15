@@ -1,21 +1,47 @@
-# Next.js template
+# OSInvoice
+<p align="center">
+  <img src="./public/repo_card.png" alt="OSInvoice" width="400" />
+</p>
 
-This is a Next.js template with shadcn/ui.
+An "Overly Simplistic" invoice manager. A portfolio project built to explore Next.js/React/SSR — coming from a Vue background.
 
-## Adding components
+Visit [OsInvoice here](https://osinvoice.vercel.app/)
 
-To add components to your app, run the following command:
+## Tech Stack
+
+- **Framework**: Next.js (App Router) / React / TypeScript
+- **Backend**: Supabase (Auth + Postgres)
+- **UI**: Tailwind CSS v4 / shadcn/ui
+- **Testing**: Vitest / Playwright
+
+## Features
+
+- Manage companies, clients, and invoices
+- PDF invoice generation
+- Email invoice sharing
+- Magic link authentication
+- Soft-delete with trash/restore flow
+
+## Getting Started
 
 ```bash
-npx shadcn@latest add button
+npm install
+npx supabase start
+npm run dev
 ```
 
-This will place the ui components in the `components` directory.
+Copy `.env.local` with your Supabase credentials:
 
-## Using components
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
 
-To use the components in your app, import them as follows:
+## Scripts
 
-```tsx
-import { Button } from "@/components/ui/button";
+```bash
+npm run dev        # Start dev server
+npm run build      # Production build
+npm run test       # Run unit tests
+npm run e2e        # Run E2E tests
 ```
