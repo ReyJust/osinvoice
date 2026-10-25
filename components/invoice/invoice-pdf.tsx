@@ -209,12 +209,6 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
               <Text style={s.metaLabel}>Date: </Text>
               <Text style={s.metaValue}>{formatDate(invoice.date)}</Text>
             </View>
-            <View style={{ ...s.metaRow, marginTop: 2 }}>
-              <Text style={s.metaLabel}>Status: </Text>
-              <Text style={s.metaValue}>
-                {invoice.status === "paid" ? "Paid" : "Unpaid"}
-              </Text>
-            </View>
           </View>
         </View>
 
