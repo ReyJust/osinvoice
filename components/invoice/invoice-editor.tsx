@@ -711,6 +711,7 @@ export default function InvoiceEditor({
           <div className="font-semibold">Notes</div>
           <Textarea
             placeholder="Add notes here"
+            value={draft.notes ?? ""}
             onChange={(e) => handleNotesChange(e.target.value)}
           />
         </Card>

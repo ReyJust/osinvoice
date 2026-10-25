@@ -70,3 +70,26 @@ describe("InvoiceEditor — authenticated mode", () => {
     ).not.toBeInTheDocument()
   })
 })
+
+describe("InvoiceEditor — editing existing invoice", () => {
+  it("shows saved notes in the notes field", () => {
+    render(
+      <InvoiceEditor
+        {...defaultProps}
+        initialInvoice={{
+          id: "INV-20261025-ABC123",
+          created_at: "",
+          date: "2026-10-25",
+          company: null,
+          client: null,
+          status: "unpaid",
+          lines: [],
+          notes: "Payment due within 14 days",
+        }}
+      />
+    )
+    expect(screen.getByPlaceholderText(/add notes here/i)).toHaveValue(
+      "Payment due within 14 days"
+    )
+  })
+})
