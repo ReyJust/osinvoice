@@ -23,6 +23,10 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { getCountryList } from "@/lib/countries"
+import {
+  DEFAULT_REGISTRATION_LABEL,
+  formatRegistrationLabel,
+} from "@/lib/formatters"
 import { useEffect, useState } from "react"
 import { Client, ClientInput, ClientInputSchema } from "@/lib/types/client"
 import {
@@ -54,6 +58,7 @@ export function ClientForm({
   })
   const countries = getCountryList()
   const { isSubmitting } = form.formState
+  const registrationLabel = formatRegistrationLabel(form.watch("country"))
   useEffect(() => {
     form.reset(client)
   }, [client])
@@ -108,7 +113,10 @@ export function ClientForm({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="client-form-registration_number">
-                  Company Registration Number (optional)
+                  Company Registration Number
+                  {registrationLabel !== DEFAULT_REGISTRATION_LABEL &&
+                    ` (${registrationLabel})`}
+                  {" (optional)"}
                 </FieldLabel>
                 <Input
                   {...field}

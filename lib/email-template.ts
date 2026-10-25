@@ -14,8 +14,14 @@ export function applyMergeTags(template: string, invoice: Invoice): string {
   const total = invoice.lines.reduce((sum, l) => sum + l.totalAmount, 0)
 
   let paymentDetails = ""
-  if (invoice.company?.bsb || invoice.company?.account_number) {
+  if (
+    invoice.company?.bank_name ||
+    invoice.company?.bsb ||
+    invoice.company?.account_number
+  ) {
     const lines = ["Payment details:"]
+    if (invoice.company.bank_name)
+      lines.push(`Bank: ${invoice.company.bank_name}`)
     if (invoice.company.bsb) lines.push(`BSB: ${invoice.company.bsb}`)
     if (invoice.company.account_number)
       lines.push(`Account: ${invoice.company.account_number}`)

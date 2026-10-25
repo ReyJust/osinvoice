@@ -22,6 +22,7 @@ const baseInput: CompanyInput = {
   postcode: "3000",
   country: "AU",
   registration_number: "51 824 753 556",
+  bank_name: "Commonwealth Bank",
   bsb: "123-456",
   account_number: "99887766",
 }
@@ -71,6 +72,7 @@ describe("Company server actions", () => {
           postcode: baseInput.postcode,
           country: baseInput.country,
           registration_number: baseInput.registration_number,
+          bank_name: baseInput.bank_name,
           bsb: baseInput.bsb,
           account_number: baseInput.account_number,
           user_id: testUser.id,

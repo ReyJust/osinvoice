@@ -83,6 +83,7 @@ export type Database = {
         Row: {
           account_number: string
           address: string
+          bank_name: string
           bsb: string
           city: string
           country: string
@@ -99,6 +100,7 @@ export type Database = {
         Insert: {
           account_number: string
           address: string
+          bank_name?: string
           bsb: string
           city: string
           country: string
@@ -115,6 +117,7 @@ export type Database = {
         Update: {
           account_number?: string
           address?: string
+          bank_name?: string
           bsb?: string
           city?: string
           country?: string

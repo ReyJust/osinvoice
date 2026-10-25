@@ -2,6 +2,7 @@ import { Document, Page, View, Text, StyleSheet } from "@react-pdf/renderer"
 import { Invoice } from "@/lib/types/invoice"
 import { formatDate } from "@/lib/formatters/formatDate"
 import { formatAddress } from "@/lib/formatters/formatAddress"
+import { formatRegistrationLabel } from "@/lib/formatters/formatRegistrationLabel"
 
 const teal = "#005f5a"
 const muted = "#6b7280"
@@ -196,7 +197,8 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
             ) : null}
             {invoice.company?.registration_number ? (
               <Text style={s.muted}>
-                Reg. No: {invoice.company.registration_number}
+                {formatRegistrationLabel(invoice.company.country)}:{" "}
+                {invoice.company.registration_number}
               </Text>
             ) : null}
           </View>
@@ -232,7 +234,8 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
           ) : null}
           {invoice.client?.registration_number ? (
             <Text style={s.muted}>
-              Reg. No: {invoice.client.registration_number}
+              {formatRegistrationLabel(invoice.client.country)}:{" "}
+              {invoice.client.registration_number}
             </Text>
           ) : null}
         </View>
@@ -289,9 +292,17 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
         ) : null}
 
         {/* Payment Details */}
-        {invoice.company?.bsb || invoice.company?.account_number ? (
+        {invoice.company?.bank_name ||
+        invoice.company?.bsb ||
+        invoice.company?.account_number ? (
           <View style={s.footer}>
             <Text style={s.sectionLabel}>Payment Details</Text>
+            {invoice.company.bank_name ? (
+              <View style={s.footerRow}>
+                <Text style={s.footerLabel}>Bank</Text>
+                <Text style={s.footerValue}>{invoice.company.bank_name}</Text>
+              </View>
+            ) : null}
             {invoice.company.bsb ? (
               <View style={s.footerRow}>
                 <Text style={s.footerLabel}>BSB</Text>

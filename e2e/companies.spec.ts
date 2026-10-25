@@ -26,6 +26,8 @@ test.describe("Company management", () => {
 
     await page.locator("#company-form-registration_number").fill("51 824 753 556")
 
+    await page.locator("#company-form-bank_name").fill("Commonwealth Bank")
+
     await page.locator("#company-form-bsb").fill("123-456")
     await page.locator("#company-form-account_number").fill("99887766")
     await page.locator("#company-form-address").fill("1 Test St")

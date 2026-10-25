@@ -32,6 +32,7 @@ Test files live next to the code they test (`*.test.ts` / `*.test.tsx`), except 
 |---------|---------------|
 | `lib/formatters/formatDate.test.ts` | Date formatting edge cases |
 | `lib/formatters/formatAddress.test.ts` | Address joining and country flag |
+| `lib/formatters/formatRegistrationLabel.test.ts` | Country → registration number label (ABN, BRN…) and fallback |
 | `lib/invoices.test.ts` | `groupInvoicesByMonth` grouping and sort order |
 | `components/ui/data-table.test.tsx` | Rendering, search filtering, result count |
 | `components/invoice/invoice-email-dialog.test.tsx` | Dialog open/close, email body content, mailto href, clipboard, PDF link |

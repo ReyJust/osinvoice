@@ -30,6 +30,7 @@ const baseInvoice: Invoice = {
     postcode: "3000",
     country: "AU",
     registration_number: "51 824 753 556",
+    bank_name: "Commonwealth Bank",
     bsb: "123-456",
     account_number: "99887766",
     created_at: "",
@@ -90,9 +91,10 @@ describe("InvoiceEmailDialog", () => {
     expect(screen.getByText(/\$300\.00/)).toBeInTheDocument()
   })
 
-  it("email body contains company BSB and account number", async () => {
+  it("email body contains company bank name, BSB and account number", async () => {
     render(<InvoiceEmailDialog invoice={baseInvoice} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
+    expect(screen.getByText(/Bank: Commonwealth Bank/)).toBeInTheDocument()
     expect(screen.getByText(/123-456/)).toBeInTheDocument()
     expect(screen.getByText(/99887766/)).toBeInTheDocument()
   })
@@ -155,10 +157,15 @@ describe("InvoiceEmailDialog", () => {
     expect(screen.getByText(/dear there/i)).toBeInTheDocument()
   })
 
-  it("omits payment details section when company has no BSB or account", async () => {
+  it("omits payment details section when company has no bank details", async () => {
     const noPayment: Invoice = {
       ...baseInvoice,
-      company: { ...baseInvoice.company!, bsb: "", account_number: "" },
+      company: {
+        ...baseInvoice.company!,
+        bank_name: "",
+        bsb: "",
+        account_number: "",
+      },
     }
     render(<InvoiceEmailDialog invoice={noPayment} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))

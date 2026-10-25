@@ -39,6 +39,7 @@ const baseInvoice: InvoiceInput = {
     postcode: "3000",
     country: "AU",
     registration_number: "51 824 753 556",
+    bank_name: "Commonwealth Bank",
     bsb: "123-456",
     account_number: "99999999",
     created_at: "",

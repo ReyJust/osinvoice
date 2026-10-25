@@ -49,7 +49,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Calendar } from "../ui/calendar"
-import { formatAddress } from "@/lib/formatters"
+import { formatAddress, formatRegistrationLabel } from "@/lib/formatters"
 
 import { useSupabase } from "@/utils/supabase/client"
 
@@ -360,8 +360,12 @@ export default function InvoiceEditor({
                     <p>{draft.company.country}</p>
 
                     <div className="mt-4 grid grid-cols-2">
-                      <p className="font-semibold">Registration No :</p>
+                      <p className="font-semibold">
+                        {formatRegistrationLabel(draft.company.country)} :
+                      </p>
                       <p>{draft.company.registration_number}</p>
+                      <p className="font-semibold">Bank :</p>
+                      <p>{draft.company.bank_name}</p>
                       <p className="font-semibold">BSB :</p>
                       <p>{draft.company.bsb}</p>
                       <p className="font-semibold">Account Number :</p>
@@ -494,7 +498,9 @@ export default function InvoiceEditor({
                     <p>{draft.client.country}</p>
                     {draft.client.registration_number && (
                       <p className="mt-4">
-                        <span className="font-semibold">Registration No :</span>{" "}
+                        <span className="font-semibold">
+                          {formatRegistrationLabel(draft.client.country)} :
+                        </span>{" "}
                         {draft.client.registration_number}
                       </p>
                     )}

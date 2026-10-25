@@ -24,6 +24,7 @@ export const createCompany = async (newCompany: CompanyInput) => {
       postcode: newCompany.postcode,
       country: newCompany.country,
       registration_number: newCompany.registration_number,
+      bank_name: newCompany.bank_name,
       bsb: newCompany.bsb,
       account_number: newCompany.account_number,
       user_id: user?.id,

@@ -23,6 +23,10 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { getCountryList } from "@/lib/countries"
+import {
+  DEFAULT_REGISTRATION_LABEL,
+  formatRegistrationLabel,
+} from "@/lib/formatters"
 import { useEffect, useState } from "react"
 import { Company, CompanyInput, CompanyInputSchema } from "@/lib/types/company"
 import {
@@ -49,11 +53,13 @@ export function CompanyForm({
     resolver: zodResolver(CompanyInputSchema),
     defaultValues: {
       registration_number: "",
+      bank_name: "",
       ...company,
     },
   })
   const countries = getCountryList()
   const { isSubmitting } = form.formState
+  const registrationLabel = formatRegistrationLabel(form.watch("country"))
   useEffect(() => {
     form.reset(company)
   }, [company])
@@ -109,6 +115,8 @@ export function CompanyForm({
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="company-form-registration_number">
                   Company Registration Number
+                  {registrationLabel !== DEFAULT_REGISTRATION_LABEL &&
+                    ` (${registrationLabel})`}
                 </FieldLabel>
                 <Input
                   {...field}
@@ -159,6 +167,25 @@ export function CompanyForm({
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
+          <Controller
+            name="bank_name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid} className="col-span-2">
+                <FieldLabel htmlFor="company-form-bank_name">Bank Name</FieldLabel>
+                <Input
+                  {...field}
+                  id="company-form-bank_name"
+                  aria-invalid={fieldState.invalid}
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
           <Controller
             name="bsb"
             control={form.control}
