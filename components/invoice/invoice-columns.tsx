@@ -10,8 +10,10 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import Link from "next/link"
+import { useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 
 import {
   Tooltip,
@@ -37,6 +39,48 @@ function SortableHeader({
     >
       {label}
       <HugeiconsIcon icon={ArrowUpDownIcon} className="ml-1 h-3 w-3" />
+    </Button>
+  )
+}
+
+function StatusToggle({ invoice }: { invoice: Invoice }) {
+  const [pending, startTransition] = useTransition()
+  const isPaid = invoice.status === "paid"
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={() =>
+            startTransition(() =>
+              changeInvoiceStatus(invoice.id, isPaid ? "unpaid" : "paid")
+            )
+          }
+          disabled={pending}
+          className="cursor-pointer disabled:cursor-wait"
+        >
+          <Badge variant={isPaid ? "default" : "outline"}>
+            {pending && <Spinner className="size-3" />}
+            {isPaid ? "Paid" : "Unpaid"}
+          </Badge>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>Mark as {isPaid ? "Unpaid" : "Paid"}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+function TrashInvoiceButton({ invoice }: { invoice: Invoice }) {
+  const [pending, startTransition] = useTransition()
+
+  return (
+    <Button
+      variant="destructive"
+      size="icon"
+      disabled={pending}
+      onClick={() => startTransition(() => moveInvoiceToTrash(invoice.id))}
+    >
+      {pending ? <Spinner /> : <HugeiconsIcon icon={Delete02Icon} />}
     </Button>
   )
 }
@@ -81,29 +125,7 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "status",
     header: ({ column }) => <SortableHeader label="Status" column={column} />,
-    cell: ({ row }) => {
-      const invoice = row.original
-      const isPaid = invoice.status === "paid"
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() =>
-                changeInvoiceStatus(invoice.id, isPaid ? "unpaid" : "paid")
-              }
-              className="cursor-pointer"
-            >
-              <Badge variant={isPaid ? "default" : "outline"}>
-                {isPaid ? "Paid" : "Unpaid"}
-              </Badge>
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            Mark as {isPaid ? "Unpaid" : "Paid"}
-          </TooltipContent>
-        </Tooltip>
-      )
-    },
+    cell: ({ row }) => <StatusToggle invoice={row.original} />,
   },
   {
     accessorKey: "date",
@@ -126,13 +148,7 @@ export const invoiceColumns: ColumnDef<Invoice>[] = [
               <HugeiconsIcon icon={Edit03Icon} />
             </Link>
           </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => moveInvoiceToTrash(invoice.id)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} />
-          </Button>
+          <TrashInvoiceButton invoice={invoice} />
         </div>
       )
     },

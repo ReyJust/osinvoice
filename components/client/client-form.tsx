@@ -36,6 +36,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "../ui/button"
+import { Spinner } from "@/components/ui/spinner"
 
 export function ClientForm({
   client,
@@ -47,10 +48,12 @@ export function ClientForm({
   const form = useForm<z.infer<typeof ClientInputSchema>>({
     resolver: zodResolver(ClientInputSchema),
     defaultValues: {
+      registration_number: "",
       ...client,
     },
   })
   const countries = getCountryList()
+  const { isSubmitting } = form.formState
   useEffect(() => {
     form.reset(client)
   }, [client])
@@ -90,6 +93,28 @@ export function ClientForm({
                   type="email"
                   aria-invalid={fieldState.invalid}
                   // placeholder=""
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="registration_number"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="client-form-registration_number">
+                  Company Registration Number (optional)
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="client-form-registration_number"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="e.g. ABN, SIRET, VAT, EIN"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (
@@ -218,9 +243,16 @@ export function ClientForm({
 
       <DialogFooter className="mt-6">
         <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
+          <Button type="button" variant="outline" disabled={isSubmitting}>
+            Cancel
+          </Button>
         </DialogClose>
-        <Button type="submit" form="update-client-form">
+        <Button
+          type="submit"
+          form="update-client-form"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner />}
           Save changes
         </Button>
       </DialogFooter>

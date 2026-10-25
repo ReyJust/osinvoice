@@ -29,6 +29,7 @@ const baseInvoice: Invoice = {
     state: "VIC",
     postcode: "3000",
     country: "AU",
+    registration_number: "51 824 753 556",
     bsb: "123-456",
     account_number: "99887766",
     created_at: "",
@@ -42,6 +43,7 @@ const baseInvoice: Invoice = {
     state: "NSW",
     postcode: "2000",
     country: "AU",
+    registration_number: "51 824 753 556",
     created_at: "",
   },
 }

@@ -29,6 +29,7 @@ const baseInput: ClientInput = {
   state: "NSW",
   postcode: "2000",
   country: "AU",
+  registration_number: "51 824 753 556",
 }
 
 /**
@@ -81,6 +82,7 @@ describe("Client server actions", () => {
           state: baseInput.state,
           postcode: baseInput.postcode,
           country: baseInput.country,
+          registration_number: baseInput.registration_number,
           user_id: testUser.id,
         })
       )

@@ -21,6 +21,7 @@ const baseInput: CompanyInput = {
   state: "VIC",
   postcode: "3000",
   country: "AU",
+  registration_number: "51 824 753 556",
   bsb: "123-456",
   account_number: "99887766",
 }
@@ -69,6 +70,7 @@ describe("Company server actions", () => {
           state: baseInput.state,
           postcode: baseInput.postcode,
           country: baseInput.country,
+          registration_number: baseInput.registration_number,
           bsb: baseInput.bsb,
           account_number: baseInput.account_number,
           user_id: testUser.id,

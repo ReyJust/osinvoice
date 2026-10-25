@@ -27,6 +27,7 @@ export const CompanyInputSchema = z.object({
   state: z.string().trim().nonempty("Required").max(100),
   postcode: z.string().trim().nonempty("Required").max(12, "Invalid postcode"),
   country: z.enum(countryCodes),
+  registration_number: z.string().trim().nonempty("Required").max(50, "Too long"),
   bsb: z.string(),
   account_number: z.string(),
 })

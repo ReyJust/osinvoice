@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -10,6 +10,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogClose,
@@ -53,6 +54,9 @@ function SortableHeader({
 
 function TrashActions({ invoice }: { invoice: Invoice }) {
   const [open, setOpen] = useState(false)
+  const [restoring, startRestore] = useTransition()
+  const [deleting, startDelete] = useTransition()
+  const pending = restoring || deleting
 
   return (
     <div className="flex items-center justify-end gap-1">
@@ -61,9 +65,12 @@ function TrashActions({ invoice }: { invoice: Invoice }) {
           <Button
             variant="default"
             size="icon"
-            onClick={() => restoreInvoiceFromTrash(invoice.id)}
+            disabled={pending}
+            onClick={() =>
+              startRestore(() => restoreInvoiceFromTrash(invoice.id))
+            }
           >
-            <HugeiconsIcon icon={ArchiveRestoreIcon} />
+            {restoring ? <Spinner /> : <HugeiconsIcon icon={ArchiveRestoreIcon} />}
           </Button>
         </TooltipTrigger>
         <TooltipContent>Restore invoice</TooltipContent>
@@ -73,7 +80,7 @@ function TrashActions({ invoice }: { invoice: Invoice }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              <Button variant="destructive" size="icon">
+              <Button variant="destructive" size="icon" disabled={pending}>
                 <HugeiconsIcon icon={Delete02Icon} />
               </Button>
             </DialogTrigger>
@@ -90,18 +97,22 @@ function TrashActions({ invoice }: { invoice: Invoice }) {
           </DialogHeader>
           <DialogFooter className="flex gap-2">
             <DialogClose asChild>
-              <Button className="flex-1" variant="default">
+              <Button className="flex-1" variant="default" disabled={deleting}>
                 Cancel
               </Button>
             </DialogClose>
             <Button
               className="flex-1"
               variant="destructive"
-              onClick={async () => {
-                await deleteInvoicePermanently(invoice.id)
-                setOpen(false)
-              }}
+              disabled={deleting}
+              onClick={() =>
+                startDelete(async () => {
+                  await deleteInvoicePermanently(invoice.id)
+                  setOpen(false)
+                })
+              }
             >
+              {deleting && <Spinner />}
               Delete forever
             </Button>
           </DialogFooter>

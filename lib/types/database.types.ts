@@ -45,6 +45,7 @@ export type Database = {
           id: number
           name: string
           postcode: string
+          registration_number: string
           state: string
           user_id: string
         }
@@ -58,6 +59,7 @@ export type Database = {
           id?: number
           name: string
           postcode: string
+          registration_number?: string
           state: string
           user_id: string
         }
@@ -71,6 +73,7 @@ export type Database = {
           id?: number
           name?: string
           postcode?: string
+          registration_number?: string
           state?: string
           user_id?: string
         }
@@ -89,6 +92,7 @@ export type Database = {
           id: number
           name: string
           postcode: string
+          registration_number: string
           state: string
           user_id: string | null
         }
@@ -104,6 +108,7 @@ export type Database = {
           id?: number
           name: string
           postcode: string
+          registration_number?: string
           state: string
           user_id?: string | null
         }
@@ -119,6 +124,7 @@ export type Database = {
           id?: number
           name?: string
           postcode?: string
+          registration_number?: string
           state?: string
           user_id?: string | null
         }

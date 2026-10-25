@@ -194,6 +194,11 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
             {invoice.company?.email ? (
               <Text style={s.muted}>{invoice.company.email}</Text>
             ) : null}
+            {invoice.company?.registration_number ? (
+              <Text style={s.muted}>
+                Reg. No: {invoice.company.registration_number}
+              </Text>
+            ) : null}
           </View>
           <View style={s.metaRight}>
             <Text style={s.invoiceLabel}>INVOICE</Text>
@@ -224,6 +229,11 @@ export function InvoicePDFDocument({ invoice }: { invoice: Invoice }) {
           ) : null}
           {invoice.client?.email ? (
             <Text style={s.muted}>{invoice.client.email}</Text>
+          ) : null}
+          {invoice.client?.registration_number ? (
+            <Text style={s.muted}>
+              Reg. No: {invoice.client.registration_number}
+            </Text>
           ) : null}
         </View>
 

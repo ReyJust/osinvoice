@@ -36,6 +36,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "../ui/button"
+import { Spinner } from "@/components/ui/spinner"
 
 export function CompanyForm({
   company,
@@ -47,10 +48,12 @@ export function CompanyForm({
   const form = useForm<z.infer<typeof CompanyInputSchema>>({
     resolver: zodResolver(CompanyInputSchema),
     defaultValues: {
+      registration_number: "",
       ...company,
     },
   })
   const countries = getCountryList()
+  const { isSubmitting } = form.formState
   useEffect(() => {
     form.reset(company)
   }, [company])
@@ -90,6 +93,28 @@ export function CompanyForm({
                   type="email"
                   aria-invalid={fieldState.invalid}
                   // placeholder=""
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="registration_number"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="company-form-registration_number">
+                  Company Registration Number
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="company-form-registration_number"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="e.g. ABN, SIRET, VAT, EIN"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (
@@ -263,9 +288,16 @@ export function CompanyForm({
 
       <DialogFooter className="mt-6">
         <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
+          <Button type="button" variant="outline" disabled={isSubmitting}>
+            Cancel
+          </Button>
         </DialogClose>
-        <Button type="submit" form="update-company-form">
+        <Button
+          type="submit"
+          form="update-company-form"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner />}
           Save changes
         </Button>
       </DialogFooter>

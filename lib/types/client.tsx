@@ -26,6 +26,7 @@ export const ClientInputSchema = z.object({
   state: z.string().trim().nonempty("Required").max(100),
   postcode: z.string().trim().nonempty("Required").max(12, "Invalid postcode"),
   country: z.enum(countryCodes),
+  registration_number: z.string().trim().max(50, "Too long"),
 })
 
 export type ClientInput = z.infer<typeof ClientInputSchema>

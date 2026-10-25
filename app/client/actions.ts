@@ -24,6 +24,7 @@ export const createClient = async (newClient: ClientInput) => {
       postcode: newClient.postcode,
       state: newClient.state,
       country: newClient.country,
+      registration_number: newClient.registration_number,
       user_id: user?.id,
     })
     .select()

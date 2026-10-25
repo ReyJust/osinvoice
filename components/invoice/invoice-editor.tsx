@@ -360,6 +360,8 @@ export default function InvoiceEditor({
                     <p>{draft.company.country}</p>
 
                     <div className="mt-4 grid grid-cols-2">
+                      <p className="font-semibold">Registration No :</p>
+                      <p>{draft.company.registration_number}</p>
                       <p className="font-semibold">BSB :</p>
                       <p>{draft.company.bsb}</p>
                       <p className="font-semibold">Account Number :</p>
@@ -490,6 +492,12 @@ export default function InvoiceEditor({
                     <p className="my-2 font-semibold">{draft.client.name}</p>
                     <p>{formatAddress(draft.client)}</p>
                     <p>{draft.client.country}</p>
+                    {draft.client.registration_number && (
+                      <p className="mt-4">
+                        <span className="font-semibold">Registration No :</span>{" "}
+                        {draft.client.registration_number}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div>
