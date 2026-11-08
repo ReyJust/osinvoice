@@ -15,7 +15,7 @@ test.describe("Auth pages", () => {
     await page.goto("/login")
     await page.locator("#email").fill("test@example.com")
     await page.getByRole("button", { name: "Login", exact: true }).click()
-    await page.waitForURL("**/check-email", { timeout: 10_000 })
+    await page.waitForURL("**/check-email**", { timeout: 10_000 })
     await expect(page).toHaveURL(/check-email/)
   })
 
@@ -34,7 +34,7 @@ test.describe("Auth pages", () => {
     await page.locator("#surname").fill("User")
     await page.locator("#email").fill("newuser@example.com")
     await page.getByRole("button", { name: "Create Account" }).click()
-    await page.waitForURL("**/check-email", { timeout: 10_000 })
+    await page.waitForURL("**/check-email**", { timeout: 10_000 })
     await expect(page).toHaveURL(/check-email/)
   })
 })
