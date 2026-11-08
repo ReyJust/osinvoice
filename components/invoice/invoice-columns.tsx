@@ -24,6 +24,7 @@ import { Invoice } from "@/lib/types/invoice"
 import { formatDate } from "@/lib/formatters"
 import { changeInvoiceStatus, moveInvoiceToTrash } from "@/app/invoice/actions"
 import { InvoiceEmailDialog } from "@/components/invoice/invoice-email-dialog"
+import { EmailTemplates } from "@/lib/email-template"
 
 function SortableHeader({
   label,
@@ -87,7 +88,7 @@ function TrashInvoiceButton({ invoice }: { invoice: Invoice }) {
 }
 
 export const getInvoiceColumns = (
-  emailBodyTemplate?: string
+  emailTemplates?: EmailTemplates
 ): ColumnDef<Invoice>[] => [
   {
     accessorKey: "id",
@@ -148,7 +149,7 @@ export const getInvoiceColumns = (
           </Button>
           <InvoiceEmailDialog
             invoice={invoice}
-            emailBodyTemplate={emailBodyTemplate}
+            templates={emailTemplates}
             triggerLabel="Email invoice"
             iconOnly
           />

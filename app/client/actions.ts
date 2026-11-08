@@ -18,6 +18,7 @@ export const createClient = async (newClient: ClientInput) => {
     .from("clients")
     .insert({
       name: newClient.name,
+      contact_name: newClient.contact_name,
       email: newClient.email,
       address: newClient.address,
       city: newClient.city,

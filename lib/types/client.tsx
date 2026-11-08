@@ -14,6 +14,7 @@ export const ClientInputSchema = z.object({
     .nonempty("Required")
     .min(2, "Too short")
     .max(100, "Too long"),
+  contact_name: z.string().trim().max(100, "Too long"),
   email: z
     .string()
     .trim()

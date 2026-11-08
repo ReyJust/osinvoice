@@ -15,6 +15,7 @@ export const metadata: Metadata = { title: "Invoices" }
 import CreateInvoiceButton from "@/components/invoice/create-invoice-button"
 import { getInvoices } from "@/lib/invoices"
 import { getUserSettings } from "@/lib/user-settings"
+import { resolveEmailTemplates } from "@/lib/email-template"
 import { InvoiceDataTable } from "@/components/invoice/invoice-data-table"
 
 export default async function Page() {
@@ -49,7 +50,7 @@ export default async function Page() {
       ) : (
         <InvoiceDataTable
           data={invoices}
-          emailBodyTemplate={settings?.email_body_template ?? undefined}
+          emailTemplates={resolveEmailTemplates(settings)}
         />
       )}
     </div>

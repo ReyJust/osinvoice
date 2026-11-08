@@ -19,18 +19,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Invoice } from "@/lib/types/invoice"
-import { applyMergeTags, DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
+import {
+  applyMergeTags,
+  EMAIL_TEMPLATE_LABELS,
+  EmailTemplateKind,
+  EmailTemplates,
+  pickEmailTemplate,
+  resolveEmailTemplates,
+} from "@/lib/email-template"
 
 export function InvoiceEmailDialog({
   invoice,
-  emailBodyTemplate,
+  templates,
   onDownloadPdf,
   triggerLabel = "Email Invoice",
   iconOnly = false,
 }: {
   invoice: Invoice
-  emailBodyTemplate?: string
+  templates?: Partial<EmailTemplates>
   onDownloadPdf?: () => void
   triggerLabel?: string
   iconOnly?: boolean
@@ -44,16 +58,31 @@ export function InvoiceEmailDialog({
 
   const emailSubject = `Invoice ${invoice.id} from ${companyName}`
 
-  const resolvedBody = useMemo(
-    () => applyMergeTags(emailBodyTemplate ?? DEFAULT_EMAIL_TEMPLATE, invoice),
-    [invoice, emailBodyTemplate]
+  const allTemplates = useMemo(
+    () => ({ ...resolveEmailTemplates(null), ...templates }),
+    [templates]
+  )
+  const [kind, setKind] = useState<EmailTemplateKind>(() =>
+    pickEmailTemplate(invoice)
   )
 
-  const [editedBody, setEditedBody] = useState(resolvedBody)
+  const bodyFor = (k: EmailTemplateKind) =>
+    applyMergeTags(allTemplates[k], invoice)
+
+  const [editedBody, setEditedBody] = useState(() => bodyFor(kind))
 
   function handleOpenChange(next: boolean) {
-    if (next) setEditedBody(resolvedBody)
+    if (next) {
+      const best = pickEmailTemplate(invoice)
+      setKind(best)
+      setEditedBody(bodyFor(best))
+    }
     setOpen(next)
+  }
+
+  function handleKindChange(next: EmailTemplateKind) {
+    setKind(next)
+    setEditedBody(bodyFor(next))
   }
 
   const mailtoHref = `mailto:${clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(editedBody)}`
@@ -93,8 +122,31 @@ export function InvoiceEmailDialog({
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-            Email body
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+              Email body
+            </div>
+            <Select
+              value={kind}
+              onValueChange={(v) => handleKindChange(v as EmailTemplateKind)}
+            >
+              <SelectTrigger
+                size="sm"
+                aria-label="Email template"
+                className="w-auto"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(EMAIL_TEMPLATE_LABELS) as EmailTemplateKind[]).map(
+                  (k) => (
+                    <SelectItem key={k} value={k}>
+                      {EMAIL_TEMPLATE_LABELS[k]}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </Select>
           </div>
           <Textarea
             value={editedBody}

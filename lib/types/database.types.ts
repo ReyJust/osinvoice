@@ -38,6 +38,7 @@ export type Database = {
         Row: {
           address: string
           city: string
+          contact_name: string
           country: string
           created_at: string
           deleted: boolean
@@ -52,6 +53,7 @@ export type Database = {
         Insert: {
           address: string
           city: string
+          contact_name?: string
           country: string
           created_at?: string
           deleted?: boolean
@@ -66,6 +68,7 @@ export type Database = {
         Update: {
           address?: string
           city?: string
+          contact_name?: string
           country?: string
           created_at?: string
           deleted?: boolean
@@ -192,6 +195,7 @@ export type Database = {
           id: number
           user_id: string
           email_body_template: string | null
+          email_body_template_contact: string | null
           created_at: string
           updated_at: string
         }
@@ -199,6 +203,7 @@ export type Database = {
           id?: number
           user_id: string
           email_body_template?: string | null
+          email_body_template_contact?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -206,6 +211,7 @@ export type Database = {
           id?: number
           user_id?: string
           email_body_template?: string | null
+          email_body_template_contact?: string | null
           created_at?: string
           updated_at?: string
         }

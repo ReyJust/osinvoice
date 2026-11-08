@@ -47,6 +47,7 @@ const baseInvoice: InvoiceInput = {
   client: {
     id: 2,
     name: "Client A",
+    contact_name: "",
     email: "a@client.com",
     address: "2 Ave",
     city: "Syd",

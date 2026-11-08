@@ -12,6 +12,7 @@ export async function generateMetadata({
 import { getCompanies } from "@/lib/companies"
 import { getInvoice } from "@/lib/invoices"
 import { getUserSettings } from "@/lib/user-settings"
+import { resolveEmailTemplates } from "@/lib/email-template"
 import { Company } from "@/lib/types/company"
 import { Client } from "@/lib/types/client"
 import InvoiceEditor from "@/components/invoice/invoice-editor"
@@ -56,7 +57,7 @@ export default async function InvoiceEditPage({
           </Button>
           <InvoiceEmailDialog
             invoice={invoice}
-            emailBodyTemplate={settings?.email_body_template ?? undefined}
+            templates={resolveEmailTemplates(settings)}
           />
         </div>
         <div className="min-h-[297mm] bg-white p-4 md:p-10 text-sm shadow-xl">

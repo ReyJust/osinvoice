@@ -23,6 +23,7 @@ const testUser = { id: "user-abc-123" }
 
 const baseInput: ClientInput = {
   name: "John Smith",
+  contact_name: "John",
   email: "john@smith.com",
   address: "2 Client Ave",
   city: "Sydney",

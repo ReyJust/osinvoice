@@ -27,14 +27,16 @@ export async function saveEmailTemplate(
   _prevState: string | null,
   formData: FormData
 ): Promise<string | null> {
-  const template = formData.get("template") as string
+  const generic = formData.get("template_generic") as string
+  const contact = formData.get("template_contact") as string
   const supabase = await createClient()
   const user = await requireUser()
 
   const { error } = await supabase.from("user_settings").upsert(
     {
       user_id: user.id,
-      email_body_template: template,
+      email_body_template: generic,
+      email_body_template_contact: contact,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" }

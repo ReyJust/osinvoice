@@ -4,17 +4,18 @@ import { useMemo } from "react"
 import { DataTable } from "@/components/ui/data-table"
 import { getInvoiceColumns } from "./invoice-columns"
 import { Invoice } from "@/lib/types/invoice"
+import { EmailTemplates } from "@/lib/email-template"
 
 export function InvoiceDataTable({
   data,
-  emailBodyTemplate,
+  emailTemplates,
 }: {
   data: Invoice[]
-  emailBodyTemplate?: string
+  emailTemplates?: EmailTemplates
 }) {
   const columns = useMemo(
-    () => getInvoiceColumns(emailBodyTemplate),
-    [emailBodyTemplate]
+    () => getInvoiceColumns(emailTemplates),
+    [emailTemplates]
   )
 
   return (

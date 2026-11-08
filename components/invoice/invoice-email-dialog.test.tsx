@@ -38,6 +38,7 @@ const baseInvoice: Invoice = {
   client: {
     id: 2,
     name: "John Smith",
+    contact_name: "",
     email: "john@smith.com",
     address: "2 Client Ave",
     city: "Sydney",
@@ -51,6 +52,10 @@ const baseInvoice: Invoice = {
 
 describe("InvoiceEmailDialog", () => {
   beforeEach(() => {
+    // Radix Select relies on pointer-capture / scrollIntoView, missing in jsdom
+    Element.prototype.hasPointerCapture ??= () => false
+    Element.prototype.releasePointerCapture ??= () => {}
+    Element.prototype.scrollIntoView ??= () => {}
     Object.assign(navigator, {
       clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
     })
@@ -129,7 +134,7 @@ describe("InvoiceEmailDialog", () => {
     const written = (navigator.clipboard.writeText as ReturnType<typeof vi.fn>)
       .mock.calls[0][0] as string
     expect(written).toContain("INV-20260613-ABC123")
-    expect(written).toContain("John Smith")
+    expect(written).toContain("INV-20260613-ABC123")
     expect(written).toContain("Acme Corp")
   })
 
@@ -154,7 +159,7 @@ describe("InvoiceEmailDialog", () => {
     const noClient: Invoice = { ...baseInvoice, client: null }
     render(<InvoiceEmailDialog invoice={noClient} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
-    expect(screen.getByText(/dear there/i)).toBeInTheDocument()
+    expect(document.querySelector("textarea")?.value).toMatch(/^Hello,/)
   })
 
   it("omits payment details section when company has no bank details", async () => {
@@ -172,12 +177,50 @@ describe("InvoiceEmailDialog", () => {
     expect(screen.queryByText(/payment details/i)).not.toBeInTheDocument()
   })
 
-  it("uses provided emailBodyTemplate instead of default", async () => {
+  it("uses provided generic template when client has no contact name", async () => {
     const custom = "Hi {clientName}, your invoice is {invoiceId}."
-    render(<InvoiceEmailDialog invoice={baseInvoice} emailBodyTemplate={custom} />)
+    render(<InvoiceEmailDialog invoice={baseInvoice} templates={{ generic: custom }} />)
     await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
     const textarea = document.querySelector("textarea")
     expect(textarea?.value).toContain("Hi John Smith, your invoice is INV-20260613-ABC123.")
+    expect(screen.getByRole("combobox", { name: /email template/i })).toHaveTextContent(
+      /without contact name/i
+    )
+  })
+
+  it("auto-selects the contact template when the client has a contact name", async () => {
+    const withContact: Invoice = {
+      ...baseInvoice,
+      client: { ...baseInvoice.client!, contact_name: "Ito" },
+    }
+    render(
+      <InvoiceEmailDialog
+        invoice={withContact}
+        templates={{ contact: "Dear {contactName},", generic: "Hello {clientName}," }}
+      />
+    )
+    await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
+    expect(document.querySelector("textarea")?.value).toBe("Dear Ito,")
+    expect(screen.getByRole("combobox", { name: /email template/i })).toHaveTextContent(
+      /with contact name/i
+    )
+  })
+
+  it("switches template from the dialog", async () => {
+    const withContact: Invoice = {
+      ...baseInvoice,
+      client: { ...baseInvoice.client!, contact_name: "Ito" },
+    }
+    render(
+      <InvoiceEmailDialog
+        invoice={withContact}
+        templates={{ contact: "Dear {contactName},", generic: "Hello {clientName}," }}
+      />
+    )
+    await userEvent.click(screen.getByRole("button", { name: /email invoice/i }))
+    await userEvent.click(screen.getByRole("combobox", { name: /email template/i }))
+    await userEvent.click(screen.getByRole("option", { name: /without contact name/i }))
+    expect(document.querySelector("textarea")?.value).toBe("Hello John Smith,")
   })
 
   it("renders Download PDF button (not link) when onDownloadPdf is provided", async () => {

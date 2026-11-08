@@ -53,6 +53,7 @@ export function ClientForm({
     resolver: zodResolver(ClientInputSchema),
     defaultValues: {
       registration_number: "",
+      contact_name: "",
       ...client,
     },
   })
@@ -78,6 +79,27 @@ export function ClientForm({
                   id="client-form-name"
                   aria-invalid={fieldState.invalid}
                   // placeholder=""
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            name="contact_name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="client-form-contact_name">
+                  Contact Name (optional)
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="client-form-contact_name"
+                  aria-invalid={fieldState.invalid}
+                  placeholder="e.g. Ito"
                   autoComplete="off"
                 />
                 {fieldState.invalid && (

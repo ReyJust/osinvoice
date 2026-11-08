@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
 import { createClient } from "@/utils/supabase/server"
 import { getUserSettings } from "@/lib/user-settings"
-import { DEFAULT_EMAIL_TEMPLATE } from "@/lib/email-template"
+import { resolveEmailTemplates } from "@/lib/email-template"
 import { ProfileForm } from "@/components/settings/profile-form"
 import { EmailTemplateForm } from "@/components/settings/email-template-form"
 
 export const metadata: Metadata = { title: "Settings" }
 
 const MERGE_TAGS = [
+  { tag: "{contactName}", description: "Client's contact person (falls back to client name)" },
   { tag: "{clientName}", description: "Client's name" },
   { tag: "{invoiceId}", description: "Invoice number" },
   { tag: "{amount}", description: "Total amount" },
@@ -27,7 +28,7 @@ export default async function SettingsPage() {
     // unauthenticated — middleware should prevent this, but degrade gracefully
   }
 
-  const currentTemplate = settings?.email_body_template ?? DEFAULT_EMAIL_TEMPLATE
+  const templates = resolveEmailTemplates(settings)
   const name = user?.user_metadata?.name ?? ""
   const surname = user?.user_metadata?.surname ?? ""
 
@@ -45,10 +46,12 @@ export default async function SettingsPage() {
       <hr className="border-border" />
 
       <div>
-        <h1 className="text-lg font-semibold">Email Template</h1>
+        <h1 className="text-lg font-semibold">Email Templates</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Customise the body of invoice emails. Use merge tags to insert invoice
-          data automatically.
+          data automatically. The &quot;with contact name&quot; template is
+          picked automatically when the client has a contact name; you can
+          switch templates when emailing an invoice.
         </p>
       </div>
 
@@ -65,7 +68,7 @@ export default async function SettingsPage() {
         ))}
       </div>
 
-      <EmailTemplateForm currentTemplate={currentTemplate} />
+      <EmailTemplateForm templates={templates} />
     </div>
   )
 }
