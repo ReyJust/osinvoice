@@ -14,10 +14,14 @@ export const metadata: Metadata = { title: "Invoices" }
 
 import CreateInvoiceButton from "@/components/invoice/create-invoice-button"
 import { getInvoices } from "@/lib/invoices"
+import { getUserSettings } from "@/lib/user-settings"
 import { InvoiceDataTable } from "@/components/invoice/invoice-data-table"
 
 export default async function Page() {
-  const invoices = await getInvoices()
+  const [invoices, settings] = await Promise.all([
+    getInvoices(),
+    getUserSettings().catch(() => null),
+  ])
 
   return (
     <div>
@@ -43,7 +47,10 @@ export default async function Page() {
           </EmptyContent>
         </Empty>
       ) : (
-        <InvoiceDataTable data={invoices} />
+        <InvoiceDataTable
+          data={invoices}
+          emailBodyTemplate={settings?.email_body_template ?? undefined}
+        />
       )}
     </div>
   )

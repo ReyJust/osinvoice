@@ -27,11 +27,13 @@ export function InvoiceEmailDialog({
   emailBodyTemplate,
   onDownloadPdf,
   triggerLabel = "Email Invoice",
+  iconOnly = false,
 }: {
   invoice: Invoice
   emailBodyTemplate?: string
   onDownloadPdf?: () => void
   triggerLabel?: string
+  iconOnly?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -65,10 +67,21 @@ export function InvoiceEmailDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <HugeiconsIcon icon={Mail01Icon} />
-          {triggerLabel}
-        </Button>
+        {iconOnly ? (
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label={triggerLabel}
+            title={triggerLabel}
+          >
+            <HugeiconsIcon icon={Mail01Icon} />
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm">
+            <HugeiconsIcon icon={Mail01Icon} />
+            {triggerLabel}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
